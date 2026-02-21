@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ecfdf5; /* light green */
+  --foreground: #0D261C; /* dark green */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ecfdf5;
+    --foreground: #051912;
+  }
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
