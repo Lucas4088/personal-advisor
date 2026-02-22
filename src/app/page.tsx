@@ -22,7 +22,7 @@ export default function Home() {
                              Personal Advisor
                         </h1>
                         <Link
-                            href="/login"
+                            href="/home"
                             className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-800/10 px-6 py-3 text-sm font-medium text-emerald-950 backdrop-blur-md ring-1 ring-white/30 shadow-sm transition hover:bg-white/20 hover:ring-white/40 active:bg-white/25 md:text-base">
                             <span>Log in</span>
                         </Link>

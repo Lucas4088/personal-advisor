@@ -1,5 +1,6 @@
 import "../ui/globals.css";
 import Navbar from "luksal/app/components/Navbar";
+import React from "react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
