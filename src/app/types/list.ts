@@ -5,3 +5,9 @@ export type Column<T> = {
     accessor: keyof T
     render?: (value: any, row: T) => React.ReactNode
 }
+
+export type ListGridProps<T> = {
+    data: T[]
+    columns: Column<T>[]
+    onRowClick?: (row: T) => void
+}

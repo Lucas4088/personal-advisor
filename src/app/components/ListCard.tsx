@@ -1,19 +1,14 @@
 import React from "react";
-import {Column} from "luksal/app/types/list";
+import {ListGridProps} from "luksal/app/types/list";
 
-type ListGridProps<T> = {
-    data: T[]
-    columns: Column<T>[]
-}
-
-export default function ListCard({ data, columns }: ListGridProps<T>) {
+export default function ListCard<T>({data, columns, onRowClick}: ListGridProps<T>) {
     return (
-        <div className="bg-white rounded-2xl shadow-sm border p-6">
+        <div className="bg-white rounded-2xl shadow-2xl p-6">
 
             {/* Header */}
             <div
                 className="grid gap-4 border-b pb-2 text-sm font-medium text-gray-500"
-                style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
+                style={{gridTemplateColumns: `repeat(${columns.length}, 1fr)`}}
             >
                 {columns.map(col => (
                     <span key={String(col.accessor)}>{col.header}</span>
@@ -25,15 +20,19 @@ export default function ListCard({ data, columns }: ListGridProps<T>) {
                 {data.map((row, index) => (
                     <div
                         key={index}
-                        className="grid gap-4 py-3 items-center hover:bg-gray-50 transition"
-                        style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
-                    >
+                        onClick={() => onRowClick?.(row)}
+                        className={`
+                                  grid gap-4 py-3 items-center
+                                  hover:bg-gray-50 transition
+                                  ${onRowClick ? "cursor-pointer" : ""}
+                                `}
+                        style={{gridTemplateColumns: `repeat(${columns.length}, 1fr)`}}>
                         {columns.map(col => {
                             const value = row[col.accessor]
                             return (
                                 <span key={String(col.accessor)}>
-                  {col.render ? col.render(value, row) : String(value)}
-                </span>
+                                 {col.render ? col.render(value, row) : String(value)}
+                                </span>
                             )
                         })}
                     </div>
