@@ -7,7 +7,6 @@ import Modal, {ModalMode} from "luksal/app/components/Modal";
 import React from "react";
 import CrawlerDetailsView from "./CrawlerDetailsView";
 
-
 export default function Page() {
     const [selected, setSelected] = React.useState<CrawlerSetting | null>(null);
     const [mode, setMode] = React.useState<ModalMode>(ModalMode.View);
