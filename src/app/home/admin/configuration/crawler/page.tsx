@@ -3,20 +3,22 @@
 import ListCard from "luksal/app/components/ListCard";
 import {CrawlerSetting} from "luksal/app/types/crawler";
 import {Column} from "luksal/app/types/list";
-import Modal from "luksal/app/components/Modal";
+import Modal, {ModalMode} from "luksal/app/components/Modal";
 import React from "react";
-
-
+import CrawlerDetailsView from "./CrawlerDetailsView";
 
 
 export default function Page() {
     const [selected, setSelected] = React.useState<CrawlerSetting | null>(null);
-    const crawlerSettings : CrawlerSetting[]  = [
+    const [mode, setMode] = React.useState<ModalMode>(ModalMode.View);
+
+    const crawlerSettings: CrawlerSetting[] = [
         {
             id: 1,
             name: "goodreads",
             enabled: true,
             baseUrl: "https://www.goodreads.com",
+            proxyEnabled: false,
             rateLimit: {
                 requestsPerMinute: 30,
                 burst: 5,
@@ -34,6 +36,7 @@ export default function Page() {
             name: "amazon-books",
             enabled: true,
             baseUrl: "https://www.amazon.com",
+            proxyEnabled: true,
             rateLimit: {
                 requestsPerMinute: 30,
                 burst: 5,
@@ -52,6 +55,7 @@ export default function Page() {
             name: "the-story-graph",
             enabled: true,
             baseUrl: "https://app.thestorygraph.com",
+            proxyEnabled: true,
             rateLimit: {
                 requestsPerMinute: 30,
                 burst: 5,
@@ -67,28 +71,37 @@ export default function Page() {
         },
     ]
 
-    const columns : Column<CrawlerSetting>[] = [
+    const columns: Column<CrawlerSetting>[] = [
         {
             header: "Id",
-            accessor: "id",
-            onClick: (row: CrawlerSetting) => setSelected(row)
+            accessor: "id"
         },
         {header: "Name", accessor: "name"},
         {header: "Enabled", accessor: "enabled"},
-        {header: "URL", accessor: "baseUrl"}
+        {header: "URL", accessor: "baseUrl"},
     ];
 
 
     return (
         <div className="p-1 space-y-6">
             <div className="grid grid-cols-1 gap-6">
-                <ListCard data={crawlerSettings} columns={columns} onRowClick={(row) => setSelected(row)} />
-                <Modal open={!!selected} onClose={() => setSelected(null)}>
-                    {selected && (
-                        <div>
-                            <h2>{selected.name}</h2>
-                        </div>
-                    )}
+                <ListCard data={crawlerSettings}
+                          columns={columns}
+                          onRowClick={(row) => {
+                              setSelected(row)
+                              setMode(ModalMode.View)
+                          }}
+                          onEditRow={(row) => {
+                              setSelected(row)
+                              setMode(ModalMode.Edit)
+                          }}
+                          onDeleteRow={(row) => {
+                              setSelected(row)
+                              setMode(ModalMode.Delete)
+                          }}
+                />
+                <Modal open={!!selected} onClose={() => setSelected(null)} mode={mode} id = {selected?.id}>
+                    {selected && !ModalMode.isDelete(mode) ? <CrawlerDetailsView selected={selected} mode={mode}/> : null}
                 </Modal>
             </div>
         </div>
