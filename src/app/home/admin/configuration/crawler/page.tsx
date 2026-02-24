@@ -7,11 +7,11 @@ import {Column} from "luksal/app/types/list";
 import Modal, {ModalMode} from "luksal/app/components/Modal";
 import React from "react";
 import CrawlerDetailsView from "./CrawlerDetailsView";
-import {useCrawlers} from "luksal/app/hook/useCrawlers";
-import {useCrawler} from "luksal/app/hook/useCrawler";
-import {useCreateCrawler} from "luksal/app/hook/useCreateCrawler";
-import {useDeleteCrawler} from "luksal/app/hook/useDeleteCrawler";
-import {useUpdateCrawler} from "luksal/app/hook/useUpdateCrawler";
+import {useCrawlers} from "luksal/app/hook/crawler/useCrawlers";
+import {useCrawler} from "luksal/app/hook/crawler/useCrawler";
+import {useCreateCrawler} from "luksal/app/hook/crawler/useCreateCrawler";
+import {useDeleteCrawler} from "luksal/app/hook/crawler/useDeleteCrawler";
+import {useUpdateCrawler} from "luksal/app/hook/crawler/useUpdateCrawler";
 
 export default function Page() {
     const [selected, setSelected] = React.useState<CrawlerSetting | null>(null);

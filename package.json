@@ -10,15 +10,17 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.575.0",
     "next": "^16.1.6",
     "npx": "^10.2.2",
     "react": "^19.2.3",
+    "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.3",
-    "react-icons": "^5.5.0",
-    "tailwind": "^4.0.0"
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
+    "@tailwindcss/language-server": "^0.14.29",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

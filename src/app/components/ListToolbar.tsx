@@ -1,6 +1,5 @@
 "use client"
 
-import "luksal/app/ui/globals.css";
 import { MdOutlineAdd } from "react-icons/md";
 
 type Props = {
