@@ -40,6 +40,12 @@ export default function Navbar() {
                                             Crawlers
                                         </Link>
                                         <Link
+                                            href="/home/admin/configuration/datapopulation"
+                                            className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
+                                        >
+                                            Data Population
+                                        </Link>
+                                        <Link
                                             href="/home/admin/configuration/general"
                                             className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
                                         >
