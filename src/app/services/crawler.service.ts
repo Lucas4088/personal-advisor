@@ -4,25 +4,25 @@ import type { CrawlerSetting } from "luksal/app/types/crawler";
 
 export const crawlerService = {
     list(): Promise<CrawlerSetting[]> {
-        return http<CrawlerSetting[]>("/api/crawlers", { method: "GET" });
+        return http<CrawlerSetting[]>("/api/crawler", { method: "GET" });
     },
 
     create(payload: CrawlerSetting): Promise<CrawlerSetting> {
-        return http<CrawlerSetting>("/api/crawlers", {
+        return http<CrawlerSetting>("/api/crawler", {
             method: "POST",
-            body: JSON.stringify(payload),
+            body: payload,
         });
     },
 
-    get(id: number): Promise<CrawlerSetting> {
+    get(id?: number | null): Promise<CrawlerSetting> {
         return http<CrawlerSetting>(`/api/crawler/${id}`, { method: "GET" });
     },
 
     update(id: number, payload: Partial<CrawlerSetting>): Promise<CrawlerSetting> {
-        return http<CrawlerSetting>(`/api/crawler/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+        return http<CrawlerSetting>(`/api/crawler/${id}`, { method: "PUT", body: payload });
     },
 
     remove(id: number): Promise<void> {
-        return http<void>(`/api/crawlers/${id}`, { method: "DELETE" });
+        return http<void>(`/api/crawler/${id}`, { method: "DELETE" });
     },
 };

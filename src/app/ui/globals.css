@@ -19,6 +19,15 @@ body {
   color: var(--foreground);
 }
 
+:required:after {
+  content: " *";
+  color: red;
+}
+
+:required:invalid {
+    border: 1px solid red;
+}
+
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,

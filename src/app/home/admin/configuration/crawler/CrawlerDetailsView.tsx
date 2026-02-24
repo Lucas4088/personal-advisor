@@ -14,7 +14,7 @@ const labelClass = "text-sm text-gray-700";
 const readOnlyInputClass =
     "w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm";
 const editableInputClass =
-    "w-full rounded-md border border-gray-300 bg-white-600 px-3 py-2 text-sm text-gray-900 shadow-sm";
+    "w-full rounded-md border border-gray-300 bg-white-600 px-3 py-2 text-sm text-gray-900 shadow-sm ";
 const cardClass =
     "bg-white p-5 w-full rounded-lg border border-gray-200 shadow-sm";
 const cardTitleClass =
@@ -62,6 +62,8 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Name</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="name"
+                            required
                             value={form.name}
                             readOnly={isReadOnly}
                             onChange={(e) => update("name", e.target.value)}
@@ -72,6 +74,9 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Base URL</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="baseUrl"
+                            required
+                            type="url"
                             value={form.baseUrl}
                             readOnly={isReadOnly}
                             onChange={(e) => update("baseUrl", e.target.value)}
@@ -82,6 +87,7 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Enabled</span>
                         <input
                             type="checkbox"
+                            name="enabled"
                             className={checkboxClass}
                             checked={!!form.enabled}
                             disabled={isReadOnly}
@@ -93,6 +99,7 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Proxy enabled</span>
                         <input
                             type="checkbox"
+                            name="proxyEnabled"
                             className={checkboxClass}
                             checked={!!form.proxyEnabled}
                             disabled={isReadOnly}
@@ -110,6 +117,8 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Search</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="path.search"
+                            required
                             value={form.path.search}
                             readOnly={isReadOnly}
                             onChange={(e) => updatePath("search", e.target.value)}
@@ -120,6 +129,8 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Book result selector</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="path.bookResultSelector"
+                            required
                             value={form.path.bookResultSelector}
                             readOnly={isReadOnly}
                             onChange={(e) => updatePath("bookResultSelector", e.target.value)}
@@ -130,6 +141,8 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Book rating score selector</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="path.bookRatingScoreSelector"
+                            required
                             value={form.path.bookRatingScoreSelector}
                             readOnly={isReadOnly}
                             onChange={(e) => updatePath("bookRatingScoreSelector", e.target.value)}
@@ -140,6 +153,8 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Book rating count selector</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="path.bookRatingCountSelector"
+                            required
                             value={form.path.bookRatingCountSelector}
                             readOnly={isReadOnly}
                             onChange={(e) => updatePath("bookRatingCountSelector", e.target.value)}
@@ -150,6 +165,8 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Title space separator</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="path.titleSpaceSeparator"
+                            required
                             value={form.path.titleSpaceSeparator}
                             readOnly={isReadOnly}
                             onChange={(e) => updatePath("titleSpaceSeparator", e.target.value)}
@@ -166,6 +183,9 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Requests per minute</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="rateLimit.requestsPerMinute"
+                            required
+                            type="number"
                             value={String(form.rateLimit.requestsPerMinute)}
                             readOnly={isReadOnly}
                             onChange={(e) =>
@@ -178,6 +198,9 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                         <span className={labelClass}>Burst</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="rateLimit.burst"
+                            required
+                            type="number"
                             value={String(form.rateLimit.burst)}
                             readOnly={isReadOnly}
                             onChange={(e) => updateRateLimit("burst", Number(e.target.value) || 0)}

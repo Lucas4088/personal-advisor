@@ -1,5 +1,6 @@
 "use client"
 import {IoMdClose} from "react-icons/io";
+import { FormEvent } from 'react'
 
 export enum ModalMode {
     Create = "create",
@@ -20,7 +21,6 @@ export namespace ModalMode {
             case ModalMode.Delete:
                 return "Delete";
             default:
-                9
                 return mode;
         }
     }
@@ -46,11 +46,13 @@ type ModalProps = {
     open: boolean;
     mode: ModalMode;
     onClose: () => void;
+    onSubmit: (data: any) => Promise<any>;
+    onConfirmDelete?: () => void;
     id?: string | number;
     children: React.ReactNode;
 }
 
-export default function Modal({open, onClose, id, mode, children}: ModalProps) {
+export default function Modal({open, onClose, onSubmit, onConfirmDelete, id, mode, children}: ModalProps) {
     if (!open) return null;
 
     if (ModalMode.isDelete(mode)) {
@@ -60,12 +62,38 @@ export default function Modal({open, onClose, id, mode, children}: ModalProps) {
             </div>
         )
     }
+
+    function setNestedValue(obj: any, key: string, value: any) {
+        const keys = key.split('.');
+        let current = obj;
+        keys.forEach((k, idx) => {
+            if (idx === keys.length - 1) {
+                current[k] = value;
+            } else {
+                if (!current[k]) current[k] = {};
+                current = current[k];
+            }
+        });
+    }
+
+    async function submit(event: FormEvent<HTMLFormElement>): Promise<any> {
+        event.preventDefault()
+        const formData = new FormData(event.currentTarget)
+        const payload: Record<string, any> = {};
+            formData.forEach((value, key) => {
+                setNestedValue(payload, key, value);
+            })
+
+        return onSubmit(payload)
+    }
+
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow-lg p-3 w-full max-w-5xl relative">
-                <div className="flex items-center justify-between px-1 py-1 mx-3  border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900">{ModalMode.title(mode)} - Id : {id}</h2>
-                    <div/>
+                <form onSubmit={submit}>
+                    <div className="flex items-center justify-between px-1 py-1 mx-3  border-b border-gray-200">
+                        <h2 className="text-lg font-semibold text-gray-900">{ModalMode.title(mode)} {!!id && <span>- Id : {id}</span>}</h2>
+                        <div/>
                         <button
                             onClick={onClose}
                             aria-label="Close"
@@ -76,21 +104,22 @@ export default function Modal({open, onClose, id, mode, children}: ModalProps) {
                         </button>
                     </div>
 
-                <div className="m-4 border-b pb-4 border-gray-200">
-                    {children}
-                </div>
-                <div className="flex justify-end mx-4 mb-2">
-                    {ModalMode.canSave(mode) && (
-                        <button className="bg-emerald-900 text-white hover:bg-emerald-700  rounded-sm px-4 py-2">
-                            Save
-                        </button>
-                    )}
-                    {ModalMode.isDelete(mode) && (
-                        <button className="bg-red-600 text-white hover:bg-red-500/50 hover:text-gray-600 rounded-sm px-4 py-2">
-                            Confirm
-                        </button>
-                    )}
-                </div>
+                    <div className="m-4 border-b pb-4 border-gray-200">
+                        {children}
+                    </div>
+                    <div className="flex justify-end mx-4 mb-2">
+                        {ModalMode.canSave(mode) && (
+                            <button type="submit"  className="bg-emerald-900 text-white hover:bg-emerald-700  rounded-sm px-4 py-2">
+                                Submit
+                            </button>
+                        )}
+                        {ModalMode.isDelete(mode) && (
+                            <button onClick={onConfirmDelete} className="bg-red-600 text-white hover:bg-red-500/50 hover:text-gray-600 rounded-sm px-4 py-2">
+                                Confirm
+                            </button>
+                        )}
+                    </div>
+                </form>
             </div>
         </div>
     )

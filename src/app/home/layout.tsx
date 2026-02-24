@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="w-full">
                 <Navbar />
             </div>
-            <div className="p-6 md:overflow-y-auto md:p-12">{children}</div>
+            <div className="p-6 md:overflow-y-auto md:p-8">{children}</div>
         </div>
     );
 }

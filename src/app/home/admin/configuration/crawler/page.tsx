@@ -1,74 +1,31 @@
 "use client"
 
 import ListCard from "luksal/app/components/ListCard";
+import ListToolbar from "luksal/app/components/ListToolbar";
 import {CrawlerSetting} from "luksal/app/types/crawler";
 import {Column} from "luksal/app/types/list";
 import Modal, {ModalMode} from "luksal/app/components/Modal";
 import React from "react";
 import CrawlerDetailsView from "./CrawlerDetailsView";
+import {useCrawlers} from "luksal/app/hook/useCrawlers";
+import {useCrawler} from "luksal/app/hook/useCrawler";
+import {useCreateCrawler} from "luksal/app/hook/useCreateCrawler";
+import {useDeleteCrawler} from "luksal/app/hook/useDeleteCrawler";
+import {useUpdateCrawler} from "luksal/app/hook/useUpdateCrawler";
 
 export default function Page() {
     const [selected, setSelected] = React.useState<CrawlerSetting | null>(null);
+    const [selectedId, setSelectedId] = React.useState<number | null>(null);
     const [mode, setMode] = React.useState<ModalMode>(ModalMode.View);
 
-    const crawlerSettings: CrawlerSetting[] = [
-        {
-            id: 1,
-            name: "goodreads",
-            enabled: true,
-            baseUrl: "https://www.goodreads.com",
-            proxyEnabled: false,
-            rateLimit: {
-                requestsPerMinute: 30,
-                burst: 5,
-            },
-            path: {
-                bookResultSelector: "a.bookTitle[itemprop=url]",
-                bookRatingCountSelector: "div.RatingStatistics__meta",
-                bookRatingScoreSelector: "div.RatingStatistics__rating",
-                search: "/search?q={formattedTitle}",
-                titleSpaceSeparator: "+",
-            },
-        },
-        {
-            id: 2,
-            name: "amazon-books",
-            enabled: true,
-            baseUrl: "https://www.amazon.com",
-            proxyEnabled: true,
-            rateLimit: {
-                requestsPerMinute: 30,
-                burst: 5,
-            },
-            path: {
-                bookResultSelector: "div[data-cy=title-recipe] a.a-link-normal",
-                bookRatingCountSelector: "#acrCustomerReviewText",
-                bookRatingScoreSelector:
-                    "#averageCustomerReviews span.a-size-small.a-color-base",
-                search: "/s?k={formattedTitle}&i=stripbooks",
-                titleSpaceSeparator: "+",
-            },
-        },
-        {
-            id: 3,
-            name: "the-story-graph",
-            enabled: true,
-            baseUrl: "https://app.thestorygraph.com",
-            proxyEnabled: true,
-            rateLimit: {
-                requestsPerMinute: 30,
-                burst: 5,
-            },
-            path: {
-                bookResultSelector: "h3 > a[href^=/books/]",
-                bookRatingCountSelector:
-                    "turbo-frame#community_reviews span.text-sm a.inverse-link",
-                bookRatingScoreSelector: "span.average-star-rating",
-                search: "/browse?search_term={formattedTitle}",
-                titleSpaceSeparator: "+",
-            },
-        },
-    ]
+    const useCreateCrawlerHook = useCreateCrawler();
+    const useDeleteCrawlerHook = useDeleteCrawler();
+    const useUpdateCrawlerHook = useUpdateCrawler();
+
+    const { data: crawlers } = useCrawlers();
+    const { data: selectedCrawler } = useCrawler(selectedId);
+
+    const crawlerSettings: CrawlerSetting[]  = crawlers ?? []
 
     const columns: Column<CrawlerSetting>[] = [
         {
@@ -80,27 +37,105 @@ export default function Page() {
         {header: "URL", accessor: "baseUrl"},
     ];
 
+    function createEmptyCrawlerSetting(): CrawlerSetting {
+        return {
+            name: "",
+            enabled: false,
+            baseUrl: "",
+            proxyEnabled: false,
+            rateLimit: {
+                requestsPerMinute: 0,
+                burst: 0,
+            },
+            path: {
+                bookResultSelector: "",
+                bookRatingCountSelector: "",
+                bookRatingScoreSelector: "",
+                search: "",
+                titleSpaceSeparator: "",
+            },
+        };
+    }
+
+    function normalizeFormPayload(payload: CrawlerSetting) {
+        if (payload.rateLimit) {
+            payload.rateLimit.requestsPerMinute = Number(payload.rateLimit.requestsPerMinute) || 0;
+            payload.rateLimit.burst = Number(payload.rateLimit.burst) || 0;
+        }
+        payload.enabled = Boolean(payload.enabled);
+        payload.proxyEnabled = Boolean(payload.proxyEnabled);
+    }
+
+    async function createCrawlerSettings(payload: CrawlerSetting) {
+        normalizeFormPayload(payload);
+        return await useCreateCrawlerHook.mutateAsync(payload);
+    }
+
+    async function updateCrawlerSettings(id: number, payload: CrawlerSetting) {
+        normalizeFormPayload(payload);
+        return await useUpdateCrawlerHook.mutateAsync({ id, payload });
+    }
+
+    async function deleteCrawlerSettings(id: number) {
+        await useDeleteCrawlerHook.mutateAsync(id);
+    }
 
     return (
-        <div className="p-1 space-y-6">
+        <div className="p-1 space-y-4">
             <div className="grid grid-cols-1 gap-6">
-                <ListCard data={crawlerSettings}
-                          columns={columns}
-                          onRowClick={(row) => {
-                              setSelected(row)
-                              setMode(ModalMode.View)
-                          }}
-                          onEditRow={(row) => {
-                              setSelected(row)
-                              setMode(ModalMode.Edit)
-                          }}
-                          onDeleteRow={(row) => {
-                              setSelected(row)
-                              setMode(ModalMode.Delete)
-                          }}
+                <ListToolbar search={""} onCreate={()=> {
+                    setSelected(createEmptyCrawlerSetting);
+                    setSelectedId(null);
+                    setMode(ModalMode.Create);
+                }}></ListToolbar>
+                <ListCard
+                    data={crawlerSettings}
+                    columns={columns}
+                    onRowClick={(row) => {
+                        setSelected(row); // open modal
+                        setSelectedId(row.id ?? null); // fetch details
+                        setMode(ModalMode.View);
+                    }}
+                    onEditRow={(row) => {
+                        setSelected(row);
+                        setSelectedId(row.id ?? null);
+                        setMode(ModalMode.Edit);
+                    }}
+                    onDeleteRow={(row) => {
+                        setSelected(row);
+                        setSelectedId(row.id ?? null);
+                        setMode(ModalMode.Delete);
+                    }}
+                    onChange={() => {}}
                 />
-                <Modal open={!!selected} onClose={() => setSelected(null)} mode={mode} id = {selected?.id}>
-                    {selected && !ModalMode.isDelete(mode) ? <CrawlerDetailsView selected={selected} mode={mode}/> : null}
+
+                <Modal
+                    open={!!selected}
+                    onSubmit={(data) => {
+                        setSelected(null);
+                        setSelectedId(null);
+                        return selectedId === null
+                            ? createCrawlerSettings(data)
+                            : updateCrawlerSettings(selectedId, data);
+                    }}
+                    onConfirmDelete={() => {
+                        const id = selected?.id;
+                        setSelected(null);
+                        setSelectedId(null);
+                        return deleteCrawlerSettings(id as number);
+                    }}
+                    onClose={() => {
+                        setSelected(null);
+                        setSelectedId(null);
+                    }}
+                    mode={mode}
+                    id={selected?.id}
+                >
+                    {!ModalMode.isDelete(mode) && (mode === ModalMode.Create ? (
+                        <CrawlerDetailsView selected={selected as CrawlerSetting} mode={mode} />
+                    ) : selectedCrawler ? (
+                        <CrawlerDetailsView selected={selectedCrawler} mode={mode} />
+                    ) : null)}
                 </Modal>
             </div>
         </div>

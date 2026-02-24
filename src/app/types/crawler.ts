@@ -1,6 +1,6 @@
 
 export interface CrawlerSetting {
-    id: number
+    id?: number
     name: string
     baseUrl: string
     rateLimit: RateLimit

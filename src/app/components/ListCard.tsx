@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Column, ListGridProps } from "luksal/app/types/list";
 import { MdModeEditOutline, MdDeleteOutline } from "react-icons/md";
 
@@ -8,8 +8,13 @@ export default function ListCard<T>({
                                         onRowClick,
                                         onEditRow,
                                         onDeleteRow,
+                                        onChange,
                                     }: ListGridProps<T>) {
     const hasActions = !!onEditRow || !!onDeleteRow;
+
+    useEffect(() => {
+        if (onChange) onChange(data);
+    }, [data, onChange]);
 
     const gridTemplateColumns = hasActions
         ? `repeat(${columns.length}, minmax(0, 1fr)) 96px`

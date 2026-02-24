@@ -9,6 +9,7 @@ export type Column<T> = {
 export type ListGridProps<T> = {
     data: T[]
     columns: Column<T>[]
+    onChange?: (data: T[]) => void,
     onRowClick?: (row: T) => void,
     onEditRow?: (row: T) => void,
     onDeleteRow?: (row: T) => void,
