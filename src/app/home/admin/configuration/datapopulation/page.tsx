@@ -3,30 +3,48 @@
 import React from "react";
 import {useUpdateJobPolicy} from "luksal/app/hook/job/useUpdateJobPolicy";
 import {useJobPolicy} from "luksal/app/hook/job/useJobPolicy";
-import {JobPolicy} from "luksal/app/types/jobPolicy.ts";
+import {JobPolicy} from "luksal/app/types/jobPolicy";
 import DataPopulationBookBasicInfoSchedule from "./DataPopulationBookBasicInfoSchedule";
+import ListCard from "luksal/app/components/ListCard";
+import {useBookBasicInfoSchedules} from "luksal/app/hook/datapopulation/useBookBasicInfoSchedules";
+import {BookBasicInfoSchedule, SearchCriteriaBookBasicInfoSchedule} from "luksal/app/types/dataPopulation";
+import {Column} from "luksal/app/types/list";
 
 export default function Page() {
+    const POPULATE_BOOK_BASIC_INFO = "POPULATE_BOOK_BASIC_INFO"
+    const POPULATE_BOOK_DETAILS = "POPULATE_BOOK_DETAILS"
+
     const [importBookBasicInfoJobPolicyEnabled, setImportBookBasicInfoJobPolicyEnabled] = React.useState<boolean | null>(null);
     const [importBookDetailsJobPolicyEnabled, setImportBookDetailsJobPolicyEnabled] = React.useState<boolean | null>(null);
+    const [searchSchedule, setSearchSchedule] = React.useState<SearchCriteriaBookBasicInfoSchedule | null>(null);
 
     const useUpdateJobPolicyHook = useUpdateJobPolicy();
 
-    const {data: importBookBasicInfoJobPolicy} = useJobPolicy("POPULATE_BOOK_BASIC_INFO");
-    const {data: importBookDetailsJobPolicy} = useJobPolicy("POPULATE_BOOK_DETAILS");
+
+    const {data: importBookBasicInfoJobPolicy} = useJobPolicy(POPULATE_BOOK_BASIC_INFO);
+    const {data: importBookDetailsJobPolicy} = useJobPolicy(POPULATE_BOOK_DETAILS);
+    const {data: schedules} = useBookBasicInfoSchedules(searchSchedule,  0,  5)
+
+    const bookBasicInfoSchedules = schedules?.content ?? []
 
     React.useEffect(() => {
         setImportBookBasicInfoJobPolicyEnabled(importBookBasicInfoJobPolicy?.enabled ?? false);
         setImportBookDetailsJobPolicyEnabled(importBookDetailsJobPolicy?.enabled ?? false);
     }, [importBookBasicInfoJobPolicy, importBookDetailsJobPolicy]);
 
-    async function handleImportBookDetailsClick(name: string) {
+    async function handleImportBookDetailsClick(name: typeof POPULATE_BOOK_BASIC_INFO | typeof POPULATE_BOOK_DETAILS) {
         const payload: JobPolicy = {
             name,
-            enabled: name === "POPULATE_BOOK_BASIC_INFO" ? !importBookBasicInfoJobPolicyEnabled : !importBookDetailsJobPolicyEnabled,
+            enabled: name === POPULATE_BOOK_BASIC_INFO ? !importBookBasicInfoJobPolicyEnabled : !importBookDetailsJobPolicyEnabled,
         };
         await useUpdateJobPolicyHook.mutateAsync({ payload });
     }
+
+    const columns: Column<BookBasicInfoSchedule>[] = [
+        {header: "Year", accessor: "year"},
+        {header: "Language", accessor: "lang"},
+        {header: "status", accessor: "meta"}
+    ];
 
     const baseButtonClassName = "rounded-3xl text-white text-shadow-md font-semibold text-xl shadow-xl p-4 w-40 m-2 backdrop-blur-md transition";
     const startButtonClassName = "bg-emerald-600  hover:bg-emerald-600/80";
@@ -38,7 +56,10 @@ export default function Page() {
                 <h3 className="text-xl text-center font-semibold text-gray-500 m-4 border-b-2">
                     Schedule book basic information import
                 </h3>
-                <DataPopulationBookBasicInfoSchedule></DataPopulationBookBasicInfoSchedule>
+                <DataPopulationBookBasicInfoSchedule ></DataPopulationBookBasicInfoSchedule>
+                <div className="p-5">
+                    <ListCard data={bookBasicInfoSchedules} columns={columns}></ListCard>
+                </div>
             </div>
 
             <div className="col-span-1 bg-gray-300 row-span-1 m-5 rounded-3xl shadow-lg flex flex-col">
@@ -51,7 +72,7 @@ export default function Page() {
                             baseButtonClassName,
                             importBookBasicInfoJobPolicyEnabled ? stopButtonClassName : startButtonClassName
                         ].join(" ")}
-                        onClick={() => handleImportBookDetailsClick("POPULATE_BOOK_BASIC_INFO")}
+                        onClick={() => handleImportBookDetailsClick(POPULATE_BOOK_BASIC_INFO)}
                     >
                         {importBookBasicInfoJobPolicyEnabled ? "Stop" : "Start"}
                     </button>
@@ -68,7 +89,7 @@ export default function Page() {
                             baseButtonClassName,
                             importBookDetailsJobPolicyEnabled ? stopButtonClassName : startButtonClassName
                         ].join(" ")}
-                        onClick={() => handleImportBookDetailsClick("POPULATE_BOOK_DETAILS")}
+                        onClick={() => handleImportBookDetailsClick(POPULATE_BOOK_DETAILS)}
                     >
                         {importBookDetailsJobPolicyEnabled ? "Stop" : "Start"}
                     </button>

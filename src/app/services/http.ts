@@ -23,9 +23,18 @@ export async function http<TResponse>(
         headers?: Record<string, string>;
         cache?: RequestCache;
         next?: NextFetchRequestConfig;
+        params?: Record<string, string | number | boolean | undefined | null>;
     },
 ): Promise<TResponse> {
-    const url = `${getApiBaseUrl()}${path}`;
+    const baseUrl = getApiBaseUrl();
+    const url = new URL(path, baseUrl);
+    if (init?.params) {
+        Object.entries(init.params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                url.searchParams.append(key, String(value));
+            }
+        });
+    }
 
     const res = await fetch(url, {
         method: init?.method ?? "GET",
