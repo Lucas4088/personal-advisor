@@ -1,26 +1,47 @@
 // `src/app/home/admin/configuration/datapopulation/DataPopulationBookBasicInfoSchedule.tsx`
 "use client";
 
-import React from "react";
+import React, {FormEvent} from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import {useCreateBookBasicInfoSchedule} from "luksal/app/hook/datapopulation/useCreateBookBasicInfoSchedule";
+import {CreateBookBasicInfoSchedule} from "luksal/app/types/dataPopulation";
 
 export default function DataPopulationBookBasicInfoSchedule() {
-    const [fromYear, setFromYear] = React.useState<Date | null>(null);
-    const [toYear, setToYear] = React.useState<Date | null>(null);
+    const [selectedFromYear, setSelectedFromYear] = React.useState<Date | null>(null);
+    const [selectedToYear, setSelectedToYear] = React.useState<Date | null>(null);
+    const [selectedLang, setSelectedLang] = React.useState<string>("eng");
+
+    const useCreateBookBasicInfoScheduleHook = useCreateBookBasicInfoSchedule();
 
     const labelClassName = "flex items-center gap-2 min-w-0 flex-1";
     const inputClassName =
         "w-full p-3 rounded-3xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500";
 
+    async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
+        const payload: CreateBookBasicInfoSchedule = {
+            fromYear: selectedFromYear.getFullYear(),
+            toYear: selectedToYear.getFullYear(),
+            lang: selectedLang
+        };
+        await createSchedule(payload);
+    }
+
+    async function createSchedule(payload: CreateBookBasicInfoSchedule): Promise<void> {
+        return await useCreateBookBasicInfoScheduleHook.mutateAsync(payload);
+    }
+
     return (
         <div className="flex p-2 px-5 w-full">
-            <form className="flex items-center gap-3 w-full">
+            <form onSubmit={(data) => {
+                data.preventDefault();
+                submit(data);
+            }} className="flex items-center gap-3 w-full">
                 <label className={labelClassName}>
                     <span className="text-xl text-gray-800 shrink-0">From:</span>
                     <DatePicker
-                        selected={fromYear}
-                        onChange={(d) => setFromYear(d)}
+                        selected={selectedFromYear}
+                        onChange={(d: React.SetStateAction<Date | null>) => setSelectedFromYear(d)}
                         showYearPicker
                         dateFormat="yyyy"
                         className={inputClassName}
@@ -34,8 +55,8 @@ export default function DataPopulationBookBasicInfoSchedule() {
                 <label className={labelClassName}>
                     <span className="text-xl text-gray-800 shrink-0">To:</span>
                     <DatePicker
-                        selected={toYear}
-                        onChange={(d) => setToYear(d)}
+                        selected={selectedToYear}
+                        onChange={(d: React.SetStateAction<Date | null>) => setSelectedToYear(d)}
                         showYearPicker
                         dateFormat="yyyy"
                         className={inputClassName}
@@ -44,6 +65,17 @@ export default function DataPopulationBookBasicInfoSchedule() {
                         calendarClassName="rounded-xl shadow-xl border border-slate-200"
                         yearClassName={() => "px-3 py-2 rounded-lg hover:bg-emerald-50"}
                     />
+                </label>
+
+                <label className={labelClassName}>
+                    <span className="text-xl text-gray-800 shrink-0">Lang:</span>
+                    <select
+                        value={selectedLang}
+                        onChange={e => setSelectedLang(e.target.value)}
+                        className={inputClassName}>
+                        <option value="eng">English</option>
+                        <option value="pl">Polish</option>
+                    </select>
                 </label>
 
                 <button

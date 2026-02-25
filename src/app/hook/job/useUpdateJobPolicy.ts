@@ -1,6 +1,6 @@
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {jobPolicyService} from "luksal/app/services/jobPolicy.service";
-import {JobPolicy} from "luksal/app/types/jobPolicy.ts";
+import {dataPopulationService} from "luksal/app/services/dataPopulationService";
+import {JobPolicy} from "luksal/app/types/jobPolicy";
 
 export function useUpdateJobPolicy() {
   const queryClient = useQueryClient();
@@ -10,7 +10,7 @@ export function useUpdateJobPolicy() {
       payload,
     }: {
       payload: Record<string, JobPolicy>;
-    }) => jobPolicyService.update(payload),
+    }) => dataPopulationService.update(payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["jobPolicy", variables.payload.name] });
     },

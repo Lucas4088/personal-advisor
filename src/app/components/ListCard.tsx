@@ -1,6 +1,12 @@
+// `src/app/components/ListCard.tsx`
 import React, { useEffect } from "react";
-import { Column, ListGridProps } from "luksal/app/types/list";
-import { MdModeEditOutline, MdDeleteOutline } from "react-icons/md";
+import { Column, ListGridProps, isPageResponse, getByPath } from "luksal/app/types/list";
+import {
+    MdModeEditOutline,
+    MdDeleteOutline,
+    MdOutlineArrowBackIos,
+    MdOutlineArrowForwardIos,
+} from "react-icons/md";
 
 export default function ListCard<T>({
                                         data,
@@ -9,12 +15,15 @@ export default function ListCard<T>({
                                         onEditRow,
                                         onDeleteRow,
                                         onChange,
+                                        paginationEnabled,
                                     }: ListGridProps<T>) {
     const hasActions = !!onEditRow || !!onDeleteRow;
+    const [selectedPageSize, setSelectedPageSize] = React.useState<number>(5);
+    const [currentPage, setCurrentPage] = React.useState<number>(1);
 
     useEffect(() => {
-        if (onChange) onChange(data);
-    }, [data, onChange]);
+        onChange?.(data, currentPage, selectedPageSize);
+    }, [data, onChange, selectedPageSize, currentPage]);
 
     const gridTemplateColumns = hasActions
         ? `repeat(${columns.length}, minmax(0, 1fr)) 96px`
@@ -23,7 +32,7 @@ export default function ListCard<T>({
     const renderCell = (row: T, col: Column<T>) => {
         if (col.render) return col.render(null, row);
         const key = col.accessor as keyof T;
-        const value = row?.[key];
+        const value = getByPath(row, col.accessor);
         return value == null ? "" : String(value);
     };
 
@@ -59,10 +68,25 @@ export default function ListCard<T>({
 
     const cellClass = "min-w-0 overflow-hidden whitespace-nowrap text-ellipsis";
 
+    const content: T[] = isPageResponse<T>(data) ? data.content : data ?? [];
+    const total = isPageResponse<T>(data) ? data.page.totalElements : content.length;
+
+    // Limit visible results (per page) \+ scrollbar for the list area
+    const startIdx = (currentPage - 1) * selectedPageSize;
+    const endIdx = startIdx + selectedPageSize;
+
+    const canPrev = currentPage > 1;
+    console.log({ endIdx, total });
+    const canNext = endIdx < total;
+
+    // Height for scroll area: `selectedPageSize` rows \* rowHeight
+    const rowHeightPx = 44;
+    const listMaxHeightPx = 5 * rowHeightPx;
+
     return (
         <div className="bg-white rounded-2xl shadow-2xl p-6">
             <div
-                className="grid gap-4 border-b pb-2 text-sm font-medium text-gray-500 items-center"
+                className="grid gap-4 border-b pb-2 text-sm font-medium text-gray-500 items-center sticky top-0 bg-white z-10"
                 style={{ gridTemplateColumns }}
             >
                 {columns.map((col) => (
@@ -73,17 +97,20 @@ export default function ListCard<T>({
                 {hasActions ? <span className="text-right">Actions</span> : null}
             </div>
 
-            <div className="divide-y">
-                {data.map((row, index) => (
+            <div
+                className="divide-y overflow-y-auto"
+                style={{ maxHeight: `${listMaxHeightPx}px` }}
+            >
+                {content.map((row, index) => (
                     <div
-                        key={index}
+                        key={startIdx + index}
                         onClick={() => onRowClick?.(row)}
                         className={`
               grid gap-4 py-3 items-center
               hover:bg-gray-50 transition
               ${onRowClick ? "cursor-pointer" : ""}
             `}
-                        style={{ gridTemplateColumns }}
+                        style={{ gridTemplateColumns, minHeight: `${rowHeightPx}px` }}
                     >
                         {columns.map((col) => (
                             <span key={String(col.accessor)} className={cellClass}>
@@ -96,6 +123,51 @@ export default function ListCard<T>({
                     </div>
                 ))}
             </div>
+
+            {paginationEnabled && isPageResponse<T>(data) ? (
+                <div className="flex justify-end mt-2 mb-4 py-3 px-6 border-t border-gray-500 h-5 font-medium text-gray-500">
+                    <span className="mr-5 m-1">Rows per page:</span>
+                    <select
+                        value={selectedPageSize}
+                        onChange={(e) => {
+                            setSelectedPageSize(Number(e.target.value));
+                            setCurrentPage(1);
+                        }}
+                        className="m-1 h-6 border-gray-300 rounded bg-white text-gray-500 appearance-none cursor-pointer"
+                    >
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                    </select>
+
+                    <span className="m-1">
+            {Math.min(startIdx + 1, total)}-
+                        {Math.min(endIdx, total)} of {total}
+          </span>
+
+                    <button
+                        type="button"
+                        disabled={!canPrev}
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        className={`p-2 rounded-full w-8 h-8 hover:bg-gray-200 ${
+                            !canPrev ? "opacity-40 pointer-events-none" : ""
+                        }`}
+                    >
+                        <MdOutlineArrowBackIos />
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={!canNext}
+                        onClick={() => setCurrentPage((p) => p + 1)}
+                        className={`p-2 rounded-full w-8 h-8 hover:bg-gray-200 ${
+                            !canNext ? "opacity-40 pointer-events-none" : ""
+                        }`}
+                    >
+                        <MdOutlineArrowForwardIos />
+                    </button>
+                </div>
+            ) : null}
         </div>
     );
 }
