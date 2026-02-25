@@ -3,7 +3,7 @@ import React from "react";
 export type Column<T> = {
     header: string
     accessor?: keyof T
-    render?: (value: any, row: T) => React.ReactNode
+    render?: (value: unknown, row: T) => React.ReactNode
 }
 
 export type ListGridProps<T> = {
