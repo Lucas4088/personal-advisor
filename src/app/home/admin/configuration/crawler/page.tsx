@@ -107,6 +107,7 @@ export default function Page() {
                         setMode(ModalMode.Delete);
                     }}
                     onChange={() => {}}
+                    paginationEnabled ={false}
                 />
 
                 <Modal

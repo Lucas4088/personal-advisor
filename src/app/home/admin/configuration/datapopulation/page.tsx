@@ -16,14 +16,15 @@ export default function Page() {
 
     const [importBookBasicInfoJobPolicyEnabled, setImportBookBasicInfoJobPolicyEnabled] = React.useState<boolean | null>(null);
     const [importBookDetailsJobPolicyEnabled, setImportBookDetailsJobPolicyEnabled] = React.useState<boolean | null>(null);
-    const [searchSchedule, setSearchSchedule] = React.useState<SearchCriteriaBookBasicInfoSchedule | null>(null);
+    const [searchSchedule, setSearchSchedule] = React.useState<SearchCriteriaBookBasicInfoSchedule>(initSearchScheduleCriteria);
+    const [currentPage, setCurrentPage] = React.useState<number>(1);
+    const [pageSize, setPageSize] = React.useState<number>(5);
 
     const useUpdateJobPolicyHook = useUpdateJobPolicy();
 
-
     const {data: importBookBasicInfoJobPolicy} = useJobPolicy(POPULATE_BOOK_BASIC_INFO);
     const {data: importBookDetailsJobPolicy} = useJobPolicy(POPULATE_BOOK_DETAILS);
-    const {data: schedules} = useBookBasicInfoSchedules(searchSchedule,  0,  5)
+    const {data: schedules} = useBookBasicInfoSchedules(searchSchedule,  currentPage - 1 ,  pageSize)
 
     const bookBasicInfoSchedules = schedules?.content ?? []
 
@@ -31,6 +32,7 @@ export default function Page() {
         setImportBookBasicInfoJobPolicyEnabled(importBookBasicInfoJobPolicy?.enabled ?? false);
         setImportBookDetailsJobPolicyEnabled(importBookDetailsJobPolicy?.enabled ?? false);
     }, [importBookBasicInfoJobPolicy, importBookDetailsJobPolicy]);
+
 
     async function handleImportBookDetailsClick(name: typeof POPULATE_BOOK_BASIC_INFO | typeof POPULATE_BOOK_DETAILS) {
         const payload: JobPolicy = {
@@ -43,12 +45,21 @@ export default function Page() {
     const columns: Column<BookBasicInfoSchedule>[] = [
         {header: "Year", accessor: "year"},
         {header: "Language", accessor: "lang"},
-        {header: "status", accessor: "meta"}
+        {header: "status", accessor: "meta.status"}
     ];
 
     const baseButtonClassName = "rounded-3xl text-white text-shadow-md font-semibold text-xl shadow-xl p-4 w-40 m-2 backdrop-blur-md transition";
     const startButtonClassName = "bg-emerald-600  hover:bg-emerald-600/80";
     const stopButtonClassName = "bg-rose-700  hover:bg-rose-600/80";
+
+    function initSearchScheduleCriteria(): SearchCriteriaBookBasicInfoSchedule {
+        return  {
+            fromYear: null,
+            toYear: null,
+            lang: null,
+            status: null
+        }
+    }
 
     return (
         <div className="grid grid-cols-4 grid-rows-5 w-full min-h-screen bg-white rounded-2xl shadow-lg p-3">
@@ -58,11 +69,14 @@ export default function Page() {
                 </h3>
                 <DataPopulationBookBasicInfoSchedule ></DataPopulationBookBasicInfoSchedule>
                 <div className="p-5">
-                    <ListCard data={bookBasicInfoSchedules} columns={columns}></ListCard>
+                    <ListCard onChange={(data, currentPage, selectedPageSize) => {
+                        setCurrentPage(currentPage);
+                        setPageSize(selectedPageSize);
+                    }} data={schedules} columns={columns} paginationEnabled={true}></ListCard>
                 </div>
             </div>
 
-            <div className="col-span-1 bg-gray-300 row-span-1 m-5 rounded-3xl shadow-lg flex flex-col">
+            <div className="col-span-1 bg-gray-300 h-40 m-5 rounded-3xl shadow-lg flex flex-col">
                 <h3 className="h-8 text-center text-lg font-semibold text-gray-500 m-4 mb-0 border-b-2">
                     Import book basic information
                 </h3>
@@ -79,7 +93,7 @@ export default function Page() {
                 </div>
             </div>
 
-            <div className="col-span-1 bg-gray-300 row-span-1 m-5 rounded-3xl shadow-lg flex flex-col">
+            <div className="col-span-1 bg-gray-300 h-40 m-5 rounded-3xl shadow-lg flex flex-col">
                 <h3 className="h-8 text-center text-lg font-semibold text-gray-500 m-4 mb-0 border-b-2">
                     Import book details
                 </h3>

@@ -7,7 +7,10 @@ export function useCreateBookBasicInfoSchedule() {
     return useMutation({
         mutationFn:  dataPopulationService.scheduleBookBasicInfo,
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: []})
+            queryClient.invalidateQueries({queryKey: ["bookBasicInfoSchedules"]})
+        },
+        onError (error) {
+                console.error("Failed to schedule book basic info population", error);
         }
     })
 }

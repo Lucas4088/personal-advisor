@@ -15,6 +15,40 @@ export class HttpError extends Error {
     }
 }
 
+function addSearchParams(
+    url: URL,
+    params?: Record<string, string | number | boolean | undefined | null | unknown>,
+) {
+    if (!params) return;
+
+    for (const [key, raw] of Object.entries(params)) {
+        if (raw === undefined || raw === null) continue;
+
+        // avoid sending "NaN" / "Infinity"
+        if (typeof raw === "number" && !Number.isFinite(raw)) continue;
+
+        // if value is an array: repeat the key (?a=1&a=2)
+        if (Array.isArray(raw)) {
+            url.searchParams.delete(key);
+            for (const item of raw) {
+                if (item === undefined || item === null) continue;
+                url.searchParams.append(key, String(item));
+            }
+            continue;
+        }
+
+        // if value is an object: JSON encode (or change to your backend expectation)
+        if (typeof raw === "object") {
+            url.searchParams.set(key, JSON.stringify(raw));
+            continue;
+        }
+
+        // primitives
+        url.searchParams.set(key, String(raw));
+    }
+}
+
+
 export async function http<TResponse>(
     path: string,
     init?: {
@@ -23,18 +57,11 @@ export async function http<TResponse>(
         headers?: Record<string, string>;
         cache?: RequestCache;
         next?: NextFetchRequestConfig;
-        params?: Record<string, string | number | boolean | undefined | null>;
     },
 ): Promise<TResponse> {
     const baseUrl = getApiBaseUrl();
     const url = new URL(path, baseUrl);
-    if (init?.params) {
-        Object.entries(init.params).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                url.searchParams.append(key, String(value));
-            }
-        });
-    }
+    addSearchParams(url, init?.params);
 
     const res = await fetch(url, {
         method: init?.method ?? "GET",

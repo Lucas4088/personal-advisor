@@ -1,7 +1,7 @@
 
 export interface SearchCriteriaBookBasicInfoSchedule {
-    yearFrom?: number;
-    yearTo?: number;
+    fromYear?: number;
+    toYear?: number;
     lang?: string;
     status?: string;
 }
