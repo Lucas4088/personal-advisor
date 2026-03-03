@@ -13,9 +13,11 @@ import {Column} from "luksal/app/types/list";
 export default function Page() {
     const POPULATE_BOOK_BASIC_INFO = "POPULATE_BOOK_BASIC_INFO"
     const POPULATE_BOOK_DETAILS = "POPULATE_BOOK_DETAILS"
+    const CRAWL_BOOKS = "CRAWL_BOOKS"
 
     const [importBookBasicInfoJobPolicyEnabled, setImportBookBasicInfoJobPolicyEnabled] = React.useState<boolean | null>(null);
     const [importBookDetailsJobPolicyEnabled, setImportBookDetailsJobPolicyEnabled] = React.useState<boolean | null>(null);
+    const [crawlBooksJobPolicyEnabled, setCrawlBooksJobPolicyEnabled] = React.useState<boolean | null>(null);
     const [searchSchedule, setSearchSchedule] = React.useState<SearchCriteriaBookBasicInfoSchedule>(initSearchScheduleCriteria);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [pageSize, setPageSize] = React.useState<number>(5);
@@ -24,6 +26,7 @@ export default function Page() {
 
     const {data: importBookBasicInfoJobPolicy} = useJobPolicy(POPULATE_BOOK_BASIC_INFO);
     const {data: importBookDetailsJobPolicy} = useJobPolicy(POPULATE_BOOK_DETAILS);
+    const {data: crawlBooksJobPolicy} = useJobPolicy(CRAWL_BOOKS);
     const {data: schedules} = useBookBasicInfoSchedules(searchSchedule,  currentPage - 1 ,  pageSize)
 
     const bookBasicInfoSchedules = schedules?.content ?? []
@@ -33,11 +36,22 @@ export default function Page() {
         setImportBookDetailsJobPolicyEnabled(importBookDetailsJobPolicy?.enabled ?? false);
     }, [importBookBasicInfoJobPolicy, importBookDetailsJobPolicy]);
 
+    React.useEffect(() => {
+        setCrawlBooksJobPolicyEnabled(crawlBooksJobPolicy?.enabled ?? false);
+    }, [crawlBooksJobPolicy]);
 
     async function handleImportBookDetailsClick(name: typeof POPULATE_BOOK_BASIC_INFO | typeof POPULATE_BOOK_DETAILS) {
         const payload: JobPolicy = {
             name,
             enabled: name === POPULATE_BOOK_BASIC_INFO ? !importBookBasicInfoJobPolicyEnabled : !importBookDetailsJobPolicyEnabled,
+        };
+        await useUpdateJobPolicyHook.mutateAsync({ payload });
+    }
+
+    async function handleCrawlBooksClick() {
+        const payload: JobPolicy = {
+            name: CRAWL_BOOKS,
+            enabled: !crawlBooksJobPolicyEnabled,
         };
         await useUpdateJobPolicyHook.mutateAsync({ payload });
     }
@@ -106,6 +120,22 @@ export default function Page() {
                         onClick={() => handleImportBookDetailsClick(POPULATE_BOOK_DETAILS)}
                     >
                         {importBookDetailsJobPolicyEnabled ? "Stop" : "Start"}
+                    </button>
+                </div>
+            </div>
+            <div className="col-span-1 bg-gray-300 h-40 m-5 rounded-3xl shadow-lg flex flex-col">
+                <h3 className="h-8 text-center text-lg font-semibold text-gray-500 m-4 mb-0 border-b-2">
+                    Crawl for book reviews
+                </h3>
+                <div className="flex-1 flex items-center justify-center">
+                    <button
+                        className={[
+                            baseButtonClassName,
+                            crawlBooksJobPolicyEnabled ? stopButtonClassName : startButtonClassName
+                        ].join(" ")}
+                        onClick={() => handleCrawlBooksClick(CRAWL_BOOKS)}
+                    >
+                        {crawlBooksJobPolicyEnabled ? "Stop" : "Start"}
                     </button>
                 </div>
             </div>
