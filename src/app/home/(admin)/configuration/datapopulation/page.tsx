@@ -9,6 +9,9 @@ import ListCard from "luksal/app/components/ListCard";
 import {useBookBasicInfoSchedules} from "luksal/app/hook/datapopulation/useBookBasicInfoSchedules";
 import {BookBasicInfoSchedule, SearchCriteriaBookBasicInfoSchedule} from "luksal/app/types/dataPopulation";
 import {Column} from "luksal/app/types/list";
+import EventStream from "luksal/app/components/EventStream";
+import {useBookBasicInfoImport} from "luksal/app/hook/datapopulation/useBookBasicInfoImport";
+import {useAuthorFileImport} from "luksal/app/hook/datapopulation/useAuthorFileImport";
 
 export default function Page() {
     const POPULATE_BOOK_BASIC_INFO = "POPULATE_BOOK_BASIC_INFO"
@@ -18,18 +21,20 @@ export default function Page() {
     const [importBookBasicInfoJobPolicyEnabled, setImportBookBasicInfoJobPolicyEnabled] = React.useState<boolean | null>(null);
     const [importBookDetailsJobPolicyEnabled, setImportBookDetailsJobPolicyEnabled] = React.useState<boolean | null>(null);
     const [crawlBooksJobPolicyEnabled, setCrawlBooksJobPolicyEnabled] = React.useState<boolean | null>(null);
+    const [isAuthorsImporting, setIsAuthorsImporting] = React.useState(false);
+    const [isBasicBookInfoImporting, setIsBasicBookInfoImporting] = React.useState(false);
     const [searchSchedule, setSearchSchedule] = React.useState<SearchCriteriaBookBasicInfoSchedule>(initSearchScheduleCriteria);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [pageSize, setPageSize] = React.useState<number>(5);
 
     const useUpdateJobPolicyHook = useUpdateJobPolicy();
+    const useAuthorsImportHook = useAuthorFileImport();
+    const useBookBasicInfoImportHook = useBookBasicInfoImport();
 
     const {data: importBookBasicInfoJobPolicy} = useJobPolicy(POPULATE_BOOK_BASIC_INFO);
     const {data: importBookDetailsJobPolicy} = useJobPolicy(POPULATE_BOOK_DETAILS);
     const {data: crawlBooksJobPolicy} = useJobPolicy(CRAWL_BOOKS);
     const {data: schedules} = useBookBasicInfoSchedules(searchSchedule,  currentPage - 1 ,  pageSize)
-
-    const bookBasicInfoSchedules = schedules?.content ?? []
 
     React.useEffect(() => {
         setImportBookBasicInfoJobPolicyEnabled(importBookBasicInfoJobPolicy?.enabled ?? false);
@@ -55,6 +60,21 @@ export default function Page() {
         };
         await useUpdateJobPolicyHook.mutateAsync({ payload });
     }
+    
+    function handleAuthorsImportMessage(message: string) {
+        if (message === "100") {
+            setIsAuthorsImporting(false);
+        } else {
+            setIsAuthorsImporting(true);
+        }
+    }
+    function handleBasicBookInfoImportMessage(message: string) {
+        if (message === "100") {
+            setIsBasicBookInfoImporting(false);
+        } else {
+            setIsBasicBookInfoImporting(true);
+        }
+    }
 
     const columns: Column<BookBasicInfoSchedule>[] = [
         {header: "Year", accessor: "year"},
@@ -62,16 +82,16 @@ export default function Page() {
         {header: "status", accessor: "meta.status"}
     ];
 
-    const baseButtonClassName = "rounded-3xl text-white text-shadow-md font-semibold text-xl shadow-xl p-4 w-40 m-2 backdrop-blur-md transition";
+    const baseButtonClassName = "rounded-3xl text-white text-shadow-md font-semibold text-xl shadow-xl p-4 w-40 m-2 backdrop-blur-md transition disabled:opacity-50 disabled:cursor-not-allowed";
     const startButtonClassName = "bg-emerald-600  hover:bg-emerald-600/80";
     const stopButtonClassName = "bg-rose-700  hover:bg-rose-600/80";
 
     function initSearchScheduleCriteria(): SearchCriteriaBookBasicInfoSchedule {
         return  {
-            fromYear: null,
-            toYear: null,
-            lang: null,
-            status: null
+            fromYear: undefined,
+            toYear: undefined,
+            lang: undefined,
+            status: undefined
         }
     }
 
@@ -86,7 +106,7 @@ export default function Page() {
                     <ListCard onChange={(data, currentPage, selectedPageSize) => {
                         setCurrentPage(currentPage);
                         setPageSize(selectedPageSize);
-                    }} data={schedules} columns={columns} paginationEnabled={true}></ListCard>
+                    }} data={schedules ?? []} columns={columns} paginationEnabled={true}></ListCard>
                 </div>
             </div>
 
@@ -133,10 +153,48 @@ export default function Page() {
                             baseButtonClassName,
                             crawlBooksJobPolicyEnabled ? stopButtonClassName : startButtonClassName
                         ].join(" ")}
-                        onClick={() => handleCrawlBooksClick(CRAWL_BOOKS)}
+                        onClick={() => handleCrawlBooksClick()}
                     >
                         {crawlBooksJobPolicyEnabled ? "Stop" : "Start"}
                     </button>
+                </div>
+            </div>
+            <div className="row-start-3 col-span-1 bg-gray-300 h-40 m-5 rounded-3xl shadow-lg flex flex-col">
+                <h3 className="h-8 text-center text-lg font-semibold text-gray-500 m-4 mb-0 border-b-2">
+                    Import authors from file
+                </h3>
+                <div className="flex-2 p-2 flex items-center justify-evenly">
+                    <button
+                        className={[
+                            baseButtonClassName, startButtonClassName
+                        ].join(" ")}
+                        disabled={isAuthorsImporting}
+                        onClick={() => useAuthorsImportHook.mutateAsync()}
+                    >
+                        Import
+                    </button>
+                    <div className="bg-white my-4 py-4 w-25 text-center rounded-2xl">
+                        <EventStream eventName="authors-import" onMessage={handleAuthorsImportMessage}></EventStream>
+                    </div>
+                </div>
+            </div>
+            <div className="row-start-3 col-span-1 bg-gray-300 h-40 m-5 rounded-3xl shadow-lg flex flex-col">
+                <h3 className="h-8 text-center text-lg font-semibold text-gray-500 m-4 mb-0 border-b-2">
+                    Import Book Details from file
+                </h3>
+                <div className="flex-2 p-2 flex items-center justify-evenly">
+                    <button
+                        className={[
+                            baseButtonClassName, startButtonClassName
+                        ].join(" ")}
+                        disabled={isBasicBookInfoImporting}
+                        onClick={() => useBookBasicInfoImportHook.mutateAsync()}
+                    >
+                        Import
+                    </button>
+                    <div className="bg-white my-4 py-4 w-25 text-center rounded-2xl">
+                        <EventStream eventName="book-basic-info-import" onMessage={handleBasicBookInfoImportMessage}></EventStream>
+                    </div>
                 </div>
             </div>
         </div>

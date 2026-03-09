@@ -54,6 +54,7 @@ export async function http<TResponse>(
     init?: {
         method?: HttpMethod;
         body?: unknown;
+        params?: Record<string, string | number | boolean | undefined | null | unknown>;
         headers?: Record<string, string>;
         cache?: RequestCache;
         next?: NextFetchRequestConfig;

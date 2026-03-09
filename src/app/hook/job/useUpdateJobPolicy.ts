@@ -9,10 +9,10 @@ export function useUpdateJobPolicy() {
     mutationFn: ({
       payload,
     }: {
-      payload: Record<string, JobPolicy>;
+      payload: JobPolicy;
     }) => dataPopulationService.update(payload),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["jobPolicy", variables.payload.name] });
+      queryClient.invalidateQueries({queryKey: ["jobPolicy", variables.payload.name]}).then(() =>{});
     },
   });
 }

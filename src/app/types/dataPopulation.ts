@@ -7,8 +7,8 @@ export interface SearchCriteriaBookBasicInfoSchedule {
 }
 
 export interface CreateBookBasicInfoSchedule {
-    yearFrom: number;
-    yearTo: number;
+    fromYear: number;
+    toYear: number;
     lang: string;
 }
 

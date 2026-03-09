@@ -34,19 +34,19 @@ export default function Navbar() {
                                 {open && (
                                     <div className="absolute top-full left-0 mt-0 w-48 bg-teal-950 border rounded-md shadow-lg z-50">
                                         <Link
-                                            href="/home/admin/configuration/crawler"
+                                            href="/home/configuration/crawler"
                                             className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
                                         >
                                             Crawlers
                                         </Link>
                                         <Link
-                                            href="/home/admin/configuration/datapopulation"
+                                            href="/home/configuration/datapopulation"
                                             className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
                                         >
                                             Data Population
                                         </Link>
                                         <Link
-                                            href="/home/admin/configuration/general"
+                                            href="/home/configuration/general"
                                             className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
                                         >
                                             General

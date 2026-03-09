@@ -1,4 +1,3 @@
-// `src/app/home/admin/configuration/datapopulation/DataPopulationBookBasicInfoSchedule.tsx`
 "use client";
 
 import React, {FormEvent} from "react";
@@ -19,12 +18,14 @@ export default function DataPopulationBookBasicInfoSchedule() {
         "w-full p-3 rounded-3xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500";
 
     async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
-        const payload: CreateBookBasicInfoSchedule = {
-            fromYear: selectedFromYear.getFullYear(),
-            toYear: selectedToYear.getFullYear(),
-            lang: selectedLang
-        };
-        await createSchedule(payload);
+        if (selectedFromYear && selectedToYear && selectedLang) {
+            const payload: CreateBookBasicInfoSchedule = {
+                fromYear: selectedFromYear.getFullYear(),
+                toYear: selectedToYear.getFullYear(),
+                lang: selectedLang
+            };
+            await createSchedule(payload);
+        }
     }
 
     async function createSchedule(payload: CreateBookBasicInfoSchedule): Promise<void> {

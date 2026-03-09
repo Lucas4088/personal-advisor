@@ -1,4 +1,3 @@
-// `src/app/components/ListCard.tsx`
 import React, { useEffect } from "react";
 import { Column, ListGridProps, isPageResponse, getByPath } from "luksal/app/types/list";
 import {
@@ -69,7 +68,7 @@ export default function ListCard<T>({
     const cellClass = "min-w-0 overflow-hidden whitespace-nowrap text-ellipsis";
 
     const content: T[] = isPageResponse<T>(data) ? data.content : data ?? [];
-    const total = isPageResponse<T>(data) ? data.page.totalElements : content.length;
+    const total = isPageResponse<T>(data) ? data.totalElements : content.length;
 
     // Limit visible results (per page) \+ scrollbar for the list area
     const startIdx = (currentPage - 1) * selectedPageSize;

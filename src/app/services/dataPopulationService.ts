@@ -6,15 +6,20 @@ import {
     SearchCriteriaBookBasicInfoSchedule
 } from "luksal/app/types/dataPopulation";
 import {PageResponse} from "luksal/app/types/api";
+import {
+    API_AUTHOR_FILE_IMPORT_URL, API_BOOK_BASIC_INFO_FILE_IMPORT_URL,
+    API_DATA_POPULATION_JOB_RUN_POLICY,
+    API_DATA_POPULATION_URL
+} from "luksal/app/lib/api";
 
 export const dataPopulationService = {
 
     get(name: string): Promise<JobPolicy> {
-        return http<JobPolicy>(`/api/population-management/job-run-policy/${name}`, { method: "GET" });
+        return http<JobPolicy>(`${API_DATA_POPULATION_JOB_RUN_POLICY}/${name}`, { method: "GET" });
     },
 
     update(payload: JobPolicy): Promise<JobPolicy> {
-        return http<JobPolicy>(`/api/population-management/job-run-policy`, { method: "PUT", body: payload });
+        return http<JobPolicy>(API_DATA_POPULATION_JOB_RUN_POLICY, { method: "PUT", body: payload });
     },
 
     scheduleBookBasicInfo(request: CreateBookBasicInfoSchedule): Promise<void> {
@@ -22,7 +27,21 @@ export const dataPopulationService = {
     },
 
     searchScheduleBookBasicInfo(criteria?: SearchCriteriaBookBasicInfoSchedule | null, page?: {page?: number, size?: number}): Promise<PageResponse<BookBasicInfoSchedule>> {
-        return http<PageResponse<BookBasicInfoSchedule>>("/api/population-management/book-basic-info-schedule", {method: "POST", body: criteria, params: page})
-    }
+        const stringParams: Record<string, string> = {};
+        if (page && page.page !== undefined) {
+            stringParams.page = String(page.page);
+        }
+        if (page && page.size !== undefined) {
+            stringParams.size = String(page.size);
+        }
+        return http<PageResponse<BookBasicInfoSchedule>>(`/api/population-management/book-basic-info-schedule`, {method: "POST", body: criteria, params: stringParams})
+    },
 
+    importAuthorsFromFile(): Promise<void> {
+        return http<void>(API_AUTHOR_FILE_IMPORT_URL, {method: "POST"})
+    },
+
+    importBasicBookInfoFromFile(): Promise<void> {
+        return http<void>(API_BOOK_BASIC_INFO_FILE_IMPORT_URL, {method: "POST"})
+    }
 };

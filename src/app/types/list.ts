@@ -32,7 +32,7 @@ export function getByPath<T>(obj: T, path?: Path<T>): unknown {
 export type ListGridProps<T> = {
     data: T[] | PageResponse<T>,
     columns: Column<T>[]
-    onChange?: (data: T[], page, size) => void,
+    onChange?: (data: T[] | PageResponse<T>, page: number, size: number) => void,
     onRowClick?: (row: T) => void,
     onEditRow?: (row: T) => void,
     onDeleteRow?: (row: T) => void,
