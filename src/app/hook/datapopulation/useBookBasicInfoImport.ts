@@ -1,11 +1,11 @@
 import {useMutation} from "@tanstack/react-query";
 import {dataPopulationService} from "luksal/app/services/dataPopulationService";
 
-export function useBookBasicInfoImport() {
+export function useBookBasicInfoImport(options?: { onSuccess?: () => void; }) {
 
     return useMutation({
         mutationFn:  dataPopulationService.importBasicBookInfoFromFile,
-        onSuccess: () => {},
+        onSuccess: options?.onSuccess,
         onError (error) {
             console.error("request has failed", error);
         }

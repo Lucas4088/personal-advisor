@@ -5,7 +5,8 @@ import Link from "next/link";
 import {FiLogOut} from "react-icons/fi";
 
 export default function Navbar() {
-    const [open, setOpen] = useState(false)
+    const [openConfiguration, setOpenConfiguration] = useState(false)
+    const [openData, setOpenData] = useState(false)
 
     const navTabDiv =
         "flex items-center gap-1 py-5 px-3 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold";
@@ -22,16 +23,16 @@ export default function Navbar() {
                         <div className="flex flex-row items-center whitespace-nowrap">
                             <div
                                 className="relative"
-                                onMouseEnter={() => setOpen(true)}
-                                onMouseLeave={() => setOpen(false)}
+                                onMouseEnter={() => setOpenConfiguration(true)}
+                                onMouseLeave={() => setOpenConfiguration(false)}
                             >
                                 <button
-                                    onClick={() => setOpen(!open)}
+                                    onClick={() => setOpenConfiguration(!openConfiguration)}
                                     className={navTabDiv}
                                 >
                                     Configuration
                                 </button>
-                                {open && (
+                                {openConfiguration && (
                                     <div className="absolute top-full left-0 mt-0 w-48 bg-teal-950 border rounded-md shadow-lg z-50">
                                         <Link
                                             href="/home/configuration/crawler"
@@ -61,11 +62,41 @@ export default function Navbar() {
                                 </Link>
                             </div>
 
-                            <div  className={navTabDiv}>
-                                <Link href="/books" >
-                                    Books
-                                </Link>
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setOpenData(true)}
+                                onMouseLeave={() => setOpenData(false)}
+                            >
+                                <button
+                                    onClick={() => setOpenData(!openData)}
+                                    className={navTabDiv}
+                                >
+                                    Data
+                                </button>
+                                {openData && (
+                                    <div className="absolute top-full left-0 mt-0 w-48 bg-teal-950 border rounded-md shadow-lg z-50">
+                                        <Link
+                                            href="/home/data/bookbasicinfo"
+                                            className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
+                                        >
+                                            Book Basic Info
+                                        </Link>
+                                        <Link
+                                            href="/home/data/bookdetails"
+                                            className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
+                                        >
+                                            Book Details
+                                        </Link>
+                                        <Link
+                                            href="/home/data/author"
+                                            className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
+                                        >
+                                            Authors
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
+
                         </div>
 
                     </div>
