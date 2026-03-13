@@ -63,7 +63,6 @@ export async function http<TResponse>(
     const baseUrl = getApiBaseUrl();
     const url = new URL(path, baseUrl);
     addSearchParams(url, init?.params);
-
     const res = await fetch(url, {
         method: init?.method ?? "GET",
         headers: {

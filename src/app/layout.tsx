@@ -6,6 +6,7 @@ import "./globals.css";
 import { inter } from './ui/fonts';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
+import { BreadcrumbProvider } from "luksal/app/context/BreadcrumbContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +35,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased`}>
       <QueryClientProvider client={queryClient}>
-          {children}
+          <BreadcrumbProvider>
+            {children}
+          </BreadcrumbProvider>
       </QueryClientProvider>
       </body>
     </html>

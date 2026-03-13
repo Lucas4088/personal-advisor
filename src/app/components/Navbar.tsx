@@ -57,7 +57,7 @@ export default function Navbar() {
                             </div>
 
                             <div className={navTabDiv}>
-                                <Link href="/statistics" >
+                                <Link href="/home/statistics" >
                                     Statistics
                                 </Link>
                             </div>
@@ -82,7 +82,7 @@ export default function Navbar() {
                                             Book Basic Info
                                         </Link>
                                         <Link
-                                            href="/home/data/bookdetails"
+                                            href="/home/data/book"
                                             className="block px-4 py-2 rounded-md hover:text-gray-900 hover:bg-gray-100/40 hover:ring-white/40 text-slate-200 font-semibold"
                                         >
                                             Book Details

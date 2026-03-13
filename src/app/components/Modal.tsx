@@ -46,7 +46,7 @@ type ModalProps = {
     open: boolean;
     mode: ModalMode;
     onClose: () => void;
-    onSubmit: (data: any) => Promise<any>;
+    onSubmit?: (data: any) => Promise<any>;
     onConfirmDelete?: () => void;
     id?: string | number;
     children: React.ReactNode;
@@ -84,7 +84,7 @@ export default function Modal({open, onClose, onSubmit, onConfirmDelete, id, mod
                 setNestedValue(payload, key, value);
             })
 
-        return onSubmit(payload)
+        return onSubmit ? onSubmit(payload) : {}
     }
 
     return (

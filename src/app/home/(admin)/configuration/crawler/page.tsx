@@ -1,7 +1,6 @@
 "use client"
 
 import ListCard from "luksal/app/components/ListCard";
-import ListToolbar from "luksal/app/components/ListToolbar";
 import {CrawlerSetting} from "luksal/app/types/crawler";
 import {Column} from "luksal/app/types/list";
 import Modal, {ModalMode} from "luksal/app/components/Modal";
@@ -12,8 +11,14 @@ import {useCrawler} from "luksal/app/hook/crawler/useCrawler";
 import {useCreateCrawler} from "luksal/app/hook/crawler/useCreateCrawler";
 import {useDeleteCrawler} from "luksal/app/hook/crawler/useDeleteCrawler";
 import {useUpdateCrawler} from "luksal/app/hook/crawler/useUpdateCrawler";
+import {useSetBreadcrumbs} from "luksal/app/context/BreadcrumbContext";
 
 export default function Page() {
+    useSetBreadcrumbs([
+        { label: 'Configuration', href: '' },
+        { label: 'Crawlers', href: '/crawler' }
+    ]);
+
     const [selected, setSelected] = React.useState<CrawlerSetting | null>(null);
     const [selectedId, setSelectedId] = React.useState<number | null>(null);
     const [mode, setMode] = React.useState<ModalMode>(ModalMode.View);
@@ -83,11 +88,6 @@ export default function Page() {
     return (
         <div className="p-1 space-y-4">
             <div className="grid grid-cols-1 gap-6">
-                <ListToolbar search={""} onCreate={()=> {
-                    setSelected(createEmptyCrawlerSetting);
-                    setSelectedId(null);
-                    setMode(ModalMode.Create);
-                }}></ListToolbar>
                 <ListCard
                     data={crawlerSettings}
                     columns={columns}

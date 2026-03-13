@@ -12,8 +12,14 @@ import {Column} from "luksal/app/types/list";
 import EventStream from "luksal/app/components/EventStream";
 import {useBookBasicInfoImport} from "luksal/app/hook/datapopulation/useBookBasicInfoImport";
 import {useAuthorFileImport} from "luksal/app/hook/datapopulation/useAuthorFileImport";
+import {useSetBreadcrumbs} from "luksal/app/context/BreadcrumbContext";
 
 export default function Page() {
+    useSetBreadcrumbs([
+        { label: 'Configuration', href: '' },
+        { label: 'Data population', href: '/data-population' }
+    ]);
+
     const POPULATE_BOOK_BASIC_INFO = "POPULATE_BOOK_BASIC_INFO"
     const POPULATE_BOOK_DETAILS = "POPULATE_BOOK_DETAILS"
     const CRAWL_BOOKS = "CRAWL_BOOKS"

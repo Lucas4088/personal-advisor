@@ -30,20 +30,22 @@ export function getByPath<T>(obj: T, path?: Path<T>): unknown {
 }
 
 export type ListGridProps<T> = {
-    data: T[] | PageResponse<T>,
+    data: T[] | PageResponse<T> | undefined,
     columns: Column<T>[]
-    onChange?: (data: T[] | PageResponse<T>, page: number, size: number) => void,
+    onPageChange?: (page: number, size: number) => void,
     onRowClick?: (row: T) => void,
     onEditRow?: (row: T) => void,
     onDeleteRow?: (row: T) => void,
-    paginationEnabled: boolean
+    paginationEnabled: boolean,
+    maxRowsVisible?: number
 }
 
-export function isPageResponse<T>(data: T[] | PageResponse<T>): data is PageResponse<T> {
+export function isPageResponse<T>(data: T[] | PageResponse<T> | undefined): data is PageResponse<T> {
     return (
-        typeof data === "object" &&
-        data !== null &&
-        "content" in data &&
+        !!data &&
+        !Array.isArray(data) &&
+        typeof data === 'object' &&
+        'content' in data &&
         Array.isArray((data as any).content)
     );
 }

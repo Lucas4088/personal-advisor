@@ -9,3 +9,11 @@ export const API_DATA_EVENT_URL = `${API_BASE_URL}/api/event`
 export const API_FILE_IMPORT_URL = `${API_BASE_URL}/api/file-import/open-library`
 export const API_AUTHOR_FILE_IMPORT_URL = `${API_FILE_IMPORT_URL}/author`
 export const API_BOOK_BASIC_INFO_FILE_IMPORT_URL = `${API_FILE_IMPORT_URL}/book-basic-info`
+
+//CRUD Book basic info, book, author
+export const API_BOOK_BASIC_INFO_URL = "/api/book-basic-info";
+export const API_BOOK_URL = "/api/book";
+export const API_AUTHOR_URL = "/api/author";
+
+//Statistics
+export const API_BOOK_STATISTICS_URL = "/api/statistics/book";
