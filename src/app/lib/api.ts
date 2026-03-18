@@ -17,3 +17,6 @@ export const API_AUTHOR_URL = "/api/author";
 
 //Statistics
 export const API_BOOK_STATISTICS_URL = "/api/statistics/book";
+export const API_CRAWLER_EVENT_STATISTICS_URL = "/api/statistics/crawler-event";
+export const API_BOOK_RATTING_STATISTICS_URL = "/api/statistics/book-rating";
+export const API_BOOK_DETAILS_FETCHED_STATISTICS_URL = "/api/statistics/book-details-fetched";

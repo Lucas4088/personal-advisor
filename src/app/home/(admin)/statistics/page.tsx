@@ -1,9 +1,35 @@
 "use client"
 
 import {useSetBreadcrumbs} from "luksal/app/context/BreadcrumbContext";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {AppPieChart, PieChartEntry} from "luksal/app/components/AppPieChart";
 import {useBookStatistics} from "luksal/app/hook/statistics/useBookStatistics";
+import {useCrawlerEventStatistics} from "luksal/app/hook/statistics/useCrawlerEventStatistics";
+import {BookDetailsFetchedStatisticsDto, BookRatingValue, RatingEventValue} from "luksal/app/types/statistics";
+import {useBookRatingStatistics} from "luksal/app/hook/statistics/useBookRatingStatistics";
+import {AppLineChart} from "luksal/app/components/AppLineChart";
+import {useBookDetailsFetchedStatistics} from "luksal/app/hook/statistics/useBookDetailsFetchedStatistics";
+import {API_DATA_EVENT_URL} from "luksal/app/lib/api";
+
+const STATUS_COLORS = {
+    PENDING: "#FFBB28",
+    ERROR: "#FF4444",
+    UNPROCESSABLE: "#1c0101",
+    SUCCESS: "#00C49F"
+} as const;
+
+const COLORS = ["#6366F1", "#10B981", "#F59E0B", "#FF4444", "#FFBB28"]
+
+type StatusKey = keyof typeof STATUS_COLORS;
+
+const colors = {
+    GOOGLE_BOOKS_SUCCESS: "#22c55e",
+    GOOGLE_BOOKS_ERROR: "#ef4444",
+    OPEN_LIBRARY_SUCCESS: "#3b82f6",
+    OPEN_LIBRARY_ERROR: "#7a2aca",
+    ARCHIVE_BOOKS_SUCCESS: "#3f35dd",
+    ARCHIVE_BOOKS_ERROR: "#f97316"
+}
 
 export default function Page() {
     useSetBreadcrumbs([
@@ -11,12 +37,81 @@ export default function Page() {
     ]);
 
     const {data: bookStatistics} = useBookStatistics()
+    const {data: crawlerEventStatistics} = useCrawlerEventStatistics()
+    const {data: bookRatingStatistics} = useBookRatingStatistics()
+    const {data: bookDetailsFetchedStatistics} = useBookDetailsFetchedStatistics()
+    const [bookDetailsFetchedStatisticsData, setBookDetailsFetchedStatisticsData]
+        = useState<BookDetailsFetchedStatisticsDto>(bookDetailsFetchedStatistics?? { values: [] })
+    const {entries, keys} = mapBookDetailsFetchedStatistics(bookDetailsFetchedStatistics)
 
-    const entries: PieChartEntry[] = [
-        {name: "Sci-Fi", value: 120, fill: "#6366F1"},
-        {name: "Fantasy", value: 90, fill: "#10B981"},
-        {name: "Drama", value: 40, fill: "#F59E0B"}
-    ]
+    useEffect(() => {
+        const eventSource = new EventSource(API_DATA_EVENT_URL)
+        eventSource.addEventListener("book-details-fetched-statistics", (event) => {
+            const eventData = (event as MessageEvent).data
+            if (eventData) {
+                setBookDetailsFetchedStatisticsData(eventData)
+            }
+        })
+    }, []);
+
+    function mapToPieChartEntries(values?: RatingEventValue[]): PieChartEntry[] {
+        return values?.filter((value) => value.status).map((value, index) => {
+            return {
+                name: value.status!,
+                value: value.value!,
+                fill: STATUS_COLORS[value.status as StatusKey]
+            }
+        }) ?? []
+    }
+
+    function mapBookRatingStatisticsToPieChartEntries(values?: BookRatingValue[]): PieChartEntry[] {
+        return values?.map((value, index) => {
+            return {
+                name: value.numberOfRatings.toString(),
+                value: value.value,
+                fill: COLORS[index]
+            }
+        }) ?? []
+    }
+
+    function mapBookDetailsFetchedStatistics(
+        data?: BookDetailsFetchedStatisticsDto
+    ) {
+        if (!data?.values) {
+            return {data: [], keys: []};
+        }
+
+        const keys = new Set<string>();
+        data.values.forEach(item => {
+            Object.keys(item).forEach(key => {
+                if (key !== "time") {
+                    keys.add(key);
+                }
+            });
+        });
+
+        const formattedData = data.values.map(item => ({
+            ...item,
+            time: new Date(item["time"]).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            })
+        }));
+        console.log("formatted", formattedData);
+
+        return {
+            entries: formattedData,
+            keys: Array.from(keys)
+        };
+    }
+
+    function withDefault<T>(arr: T[] | undefined | null, fallback: T[]): T[] {
+        return arr && arr.length > 0 ? arr : fallback;
+    }
+
+    function groupByCrawlerName(): Partial<Record<string, RatingEventValue[]>> {
+        return Object.groupBy(crawlerEventStatistics?.values ?? [], (value) => value.crawlerName);
+    }
 
     function formatNumber(num: number | undefined): string {
         if (num === undefined) {
@@ -28,10 +123,15 @@ export default function Page() {
         if (num >= 1_000) {
             return `${(num / 1_000).toFixed(2)}K`
         }
-        if(num < 1){
-            return `${num.toFixed(3)}%`
-        }
         return num.toString()
+    }
+
+
+    function formatPercentage(num: number | undefined): string {
+        if (num === undefined) {
+            return '0';
+        }
+        return `${num.toFixed(2)}%`
     }
 
 
@@ -82,31 +182,53 @@ export default function Page() {
                 Total Book synchronised
             </h3>
             <div className="text-5xl font-bold text-amber-800 text-center">
-                {formatNumber(bookStatistics?.bookSyncPercentage)}
+                {formatPercentage(bookStatistics?.bookSyncPercentage)}
             </div>
         </div>
 
-        <div className="col-span-2 row-span-2 bg-gray-100 m-5 rounded-3xl shadow-lg flex flex-col p-4">
+        <div className="col-span-3 row-span-2 bg-gray-100 m-5 rounded-3xl shadow-lg flex flex-col p-4">
             <h3 className="text-center text-xl font-semibold text-gray-500">
                 Crawler ratings stats
             </h3>
             <h5 className="text-center text-2xl font-semibold text-amber-800">
-                10K
+                {formatNumber(crawlerEventStatistics?.total)}
             </h5>
             <div className="flex-1 flex items-center justify-center">
-                <AppPieChart entries={entries}></AppPieChart>
+                {Object.entries(groupByCrawlerName()).map(([key, value]) => (
+                    <AppPieChart
+                        key={key}
+                        entries={mapToPieChartEntries(value)}
+                        title={key}
+                        total={value?.reduce((acc, val) => acc + val.value, 0).toString() ?? '0'}
+                    />
+                ))}
             </div>
         </div>
 
         <div className="col-span-2 row-span-2 bg-gray-100 m-5 rounded-3xl shadow-lg flex flex-col p-4">
             <h3 className="text-center text-xl font-semibold text-gray-500">
-                Crawler events stats
+                Book ratings number stats
             </h3>
             <h5 className="text-center text-2xl font-semibold text-amber-800">
-                10K
+                {formatNumber(bookRatingStatistics?.totalRatings)}
             </h5>
             <div className="flex-1 flex items-center justify-center">
-                <AppPieChart entries={entries}></AppPieChart>
+                <AppPieChart
+                    entries={mapBookRatingStatisticsToPieChartEntries(bookRatingStatistics?.values)}
+                    title=""
+                />
+            </div>
+        </div>
+        <div className="col-span-3 row-span-2 bg-gray-100 m-5 rounded-3xl shadow-lg flex flex-col p-4">
+            <h3 className="text-center text-xl font-semibold text-gray-500">
+                Book ratings number stats
+            </h3>
+            <h5 className="text-center text-2xl font-semibold text-amber-800">
+                {formatNumber(bookRatingStatistics?.totalRatings)}
+            </h5>
+            <div className="flex-1 flex items-center justify-center">
+                <AppLineChart title="Test" entries={withDefault(mapBookDetailsFetchedStatistics(bookDetailsFetchedStatisticsData).entries, entries)}
+                              keys={keys} colors={colors}></AppLineChart>
             </div>
         </div>
     </div>

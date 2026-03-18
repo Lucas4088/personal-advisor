@@ -9,7 +9,7 @@ import ListCard from "luksal/app/components/ListCard";
 import {useBookBasicInfoSchedules} from "luksal/app/hook/datapopulation/useBookBasicInfoSchedules";
 import {BookBasicInfoSchedule, SearchCriteriaBookBasicInfoSchedule} from "luksal/app/types/dataPopulation";
 import {Column} from "luksal/app/types/list";
-import EventStream from "luksal/app/components/EventStream";
+import EventStreamProgressBar from "luksal/app/components/EventStream";
 import {useBookBasicInfoImport} from "luksal/app/hook/datapopulation/useBookBasicInfoImport";
 import {useAuthorFileImport} from "luksal/app/hook/datapopulation/useAuthorFileImport";
 import {useSetBreadcrumbs} from "luksal/app/context/BreadcrumbContext";
@@ -198,8 +198,8 @@ export default function Page() {
                             Import
                         </button>
                         <div className="w-full bg-white py-2 px-2 text-center rounded-2xl">
-                            <EventStream eventName="authors-import"
-                                         onMessage={handleAuthorsImportMessage}></EventStream>
+                            <EventStreamProgressBar eventName="authors-import"
+                                         onMessage={handleAuthorsImportMessage}></EventStreamProgressBar>
                         </div>
                     </div>
                 </div>
@@ -218,7 +218,7 @@ export default function Page() {
                             Import
                         </button>
                         <div className="w-full bg-white py-2 px-2 text-center rounded-2xl">
-                            <EventStream eventName="book-basic-info-import"
+                            <EventStreamProgressBar eventName="book-basic-info-import"
                                          onMessage={handleBasicBookInfoImportMessage}/>
                         </div>
                     </div>

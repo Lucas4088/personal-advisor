@@ -7,6 +7,7 @@ export interface CrawlerSetting {
     path: Path
     enabled: boolean
     proxyEnabled: boolean
+    proxyName: string
 }
 
 export interface RateLimit {

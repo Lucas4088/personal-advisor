@@ -154,7 +154,7 @@ export default function ListCard<T>({
                     </select>
 
                     <span className="m-1">
-                        {isPageResponse<T>(data) ? currentPage : 1} of {total}
+                        {isPageResponse<T>(data) ? currentPage : 1} of {Math.ceil(total/pageSize)} pages of {total} records
                     </span>
 
                     <button

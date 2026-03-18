@@ -106,6 +106,16 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                             onChange={(e) => update("proxyEnabled", e.target.checked)}
                         />
                     </label>
+                    <label className={fieldRowClass}>
+                        <span className={labelClass}>Proxy name</span>
+                        <input
+                            className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="proxyName"
+                            value={form.proxyName}
+                            readOnly={isReadOnly}
+                            onChange={(e) => update("proxyName", e.target.value)}
+                        />
+                    </label>
                 </div>
             </section>
 
