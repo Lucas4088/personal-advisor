@@ -19,6 +19,8 @@ export interface Path {
     bookResultSelector: string
     bookRatingCountSelector: string
     bookRatingScoreSelector: string
+    bookTitleSelector: string
+    bookAuthorsSelector: string
     search: string
     titleSpaceSeparator: string
 }

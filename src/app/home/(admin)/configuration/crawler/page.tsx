@@ -48,6 +48,7 @@ export default function Page() {
             enabled: false,
             baseUrl: "",
             proxyEnabled: false,
+            proxyName: "",
             rateLimit: {
                 requestsPerMinute: 0,
                 burst: 0,
@@ -56,6 +57,8 @@ export default function Page() {
                 bookResultSelector: "",
                 bookRatingCountSelector: "",
                 bookRatingScoreSelector: "",
+                bookTitleSelector: "",
+                bookAuthorsSelector: "",
                 search: "",
                 titleSpaceSeparator: "",
             },

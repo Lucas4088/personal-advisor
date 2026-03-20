@@ -172,6 +172,30 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                     </label>
 
                     <label className={fieldRowClass}>
+                        <span className={labelClass}>Book title selector</span>
+                        <input
+                            className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="path.bookTitleSelector"
+                            required
+                            value={form.path.bookTitleSelector}
+                            readOnly={isReadOnly}
+                            onChange={(e) => updatePath("bookTitleSelector", e.target.value)}
+                        />
+                    </label>
+
+                    <label className={fieldRowClass}>
+                        <span className={labelClass}>Book authors selector</span>
+                        <input
+                            className={isReadOnly ? readOnlyInputClass : editableInputClass}
+                            name="path.bookAuthorsSelector"
+                            required
+                            value={form.path.bookAuthorsSelector}
+                            readOnly={isReadOnly}
+                            onChange={(e) => updatePath("bookAuthorsSelector", e.target.value)}
+                        />
+                    </label>
+
+                    <label className={fieldRowClass}>
                         <span className={labelClass}>Title space separator</span>
                         <input
                             className={isReadOnly ? readOnlyInputClass : editableInputClass}
@@ -182,6 +206,8 @@ export default function CrawlerDetailsView({ selected, mode }: Props) {
                             onChange={(e) => updatePath("titleSpaceSeparator", e.target.value)}
                         />
                     </label>
+
+
                 </div>
             </section>
 

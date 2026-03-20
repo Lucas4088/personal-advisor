@@ -1,15 +1,15 @@
 "use client"
 
 import {useSetBreadcrumbs} from "luksal/app/context/BreadcrumbContext";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {AppPieChart, PieChartEntry} from "luksal/app/components/AppPieChart";
 import {useBookStatistics} from "luksal/app/hook/statistics/useBookStatistics";
 import {useCrawlerEventStatistics} from "luksal/app/hook/statistics/useCrawlerEventStatistics";
 import {BookDetailsFetchedStatisticsDto, BookRatingValue, RatingEventValue} from "luksal/app/types/statistics";
 import {useBookRatingStatistics} from "luksal/app/hook/statistics/useBookRatingStatistics";
-import {AppLineChart} from "luksal/app/components/AppLineChart";
 import {useBookDetailsFetchedStatistics} from "luksal/app/hook/statistics/useBookDetailsFetchedStatistics";
 import {API_DATA_EVENT_URL} from "luksal/app/lib/api";
+import {AppLineChart} from "luksal/app/components/AppLineChart";
 
 const STATUS_COLORS = {
     PENDING: "#FFBB28",
@@ -22,7 +22,7 @@ const COLORS = ["#6366F1", "#10B981", "#F59E0B", "#FF4444", "#FFBB28"]
 
 type StatusKey = keyof typeof STATUS_COLORS;
 
-const colors = {
+const LINE_CHART_COLORS = {
     GOOGLE_BOOKS_SUCCESS: "#22c55e",
     GOOGLE_BOOKS_ERROR: "#ef4444",
     OPEN_LIBRARY_SUCCESS: "#3b82f6",
@@ -40,18 +40,25 @@ export default function Page() {
     const {data: crawlerEventStatistics} = useCrawlerEventStatistics()
     const {data: bookRatingStatistics} = useBookRatingStatistics()
     const {data: bookDetailsFetchedStatistics} = useBookDetailsFetchedStatistics()
-    const [bookDetailsFetchedStatisticsData, setBookDetailsFetchedStatisticsData]
-        = useState<BookDetailsFetchedStatisticsDto>(bookDetailsFetchedStatistics?? { values: [] })
-    const {entries, keys} = mapBookDetailsFetchedStatistics(bookDetailsFetchedStatistics)
+    const [liveStatisticsData, setLiveStatisticsData] = useState<BookDetailsFetchedStatisticsDto | undefined>()
 
     useEffect(() => {
         const eventSource = new EventSource(API_DATA_EVENT_URL)
         eventSource.addEventListener("book-details-fetched-statistics", (event) => {
             const eventData = (event as MessageEvent).data
             if (eventData) {
-                setBookDetailsFetchedStatisticsData(eventData)
+                try {
+                    const parsedData = JSON.parse(eventData);
+                    setLiveStatisticsData(parsedData)
+                } catch (e) {
+                    console.error("Failed to parse SSE data", e)
+                }
             }
         })
+
+        return () => {
+            eventSource.close()
+        }
     }, []);
 
     function mapToPieChartEntries(values?: RatingEventValue[]): PieChartEntry[] {
@@ -78,7 +85,7 @@ export default function Page() {
         data?: BookDetailsFetchedStatisticsDto
     ) {
         if (!data?.values) {
-            return {data: [], keys: []};
+            return {entries: [], keys: []};
         }
 
         const keys = new Set<string>();
@@ -92,12 +99,11 @@ export default function Page() {
 
         const formattedData = data.values.map(item => ({
             ...item,
-            time: new Date(item["time"]).toLocaleTimeString([], {
+            time: new Date(item.time).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit"
             })
         }));
-        console.log("formatted", formattedData);
 
         return {
             entries: formattedData,
@@ -105,8 +111,31 @@ export default function Page() {
         };
     }
 
-    function withDefault<T>(arr: T[] | undefined | null, fallback: T[]): T[] {
-        return arr && arr.length > 0 ? arr : fallback;
+    const displayedStatistics = liveStatisticsData ?? bookDetailsFetchedStatistics;
+
+    const {entries, keys} = useMemo(
+        () => mapBookDetailsFetchedStatistics(displayedStatistics),
+        [displayedStatistics]
+    );
+
+    function aggregateFetchedBookDetailsStatistics(data?: BookDetailsFetchedStatisticsDto) {
+        if (!data?.values.length) return []
+
+        // find latest bucket by time
+        const latest = data.values.reduce((a, b) =>
+            new Date(a.time) > new Date(b.time) ? a : b
+        )
+
+        // sum SUCCESS + ERROR per source group from latest bucket
+        const result = Object.entries(latest)
+            .filter(([key]) => key !== "time")
+            .reduce<Record<string, number>>((acc, [key, value]) => {
+                const group = key.replace(/_SUCCESS$|_ERROR$/, "")
+                acc[group] = (acc[group] || 0) + (value as number)
+                return acc
+            }, {})
+
+        return Object.entries(result)
     }
 
     function groupByCrawlerName(): Partial<Record<string, RatingEventValue[]>> {
@@ -221,14 +250,19 @@ export default function Page() {
         </div>
         <div className="col-span-3 row-span-2 bg-gray-100 m-5 rounded-3xl shadow-lg flex flex-col p-4">
             <h3 className="text-center text-xl font-semibold text-gray-500">
-                Book ratings number stats
+                Book fetched details statistics
             </h3>
-            <h5 className="text-center text-2xl font-semibold text-amber-800">
-                {formatNumber(bookRatingStatistics?.totalRatings)}
+            <h5 className="pt-1 text-center text-xl font-semibold">
+                {aggregateFetchedBookDetailsStatistics(bookDetailsFetchedStatistics).sort((a, b) => a[0].localeCompare(b[0])).map(
+                    (item, index) =>
+                        (<span key={index}>
+                            <span className="text-gray-700">{item[0]}: </span>
+                            <span className="text-amber-800"> {formatNumber(item[1])} </span>
+                        </span>)
+                )}
             </h5>
-            <div className="flex-1 flex items-center justify-center">
-                <AppLineChart title="Test" entries={withDefault(mapBookDetailsFetchedStatistics(bookDetailsFetchedStatisticsData).entries, entries)}
-                              keys={keys} colors={colors}></AppLineChart>
+            <div className=" flex-1 flex items-center justify-center">
+                <AppLineChart entries={entries} keys={keys} colors={LINE_CHART_COLORS}></AppLineChart>
             </div>
         </div>
     </div>

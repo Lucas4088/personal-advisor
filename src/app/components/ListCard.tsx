@@ -18,7 +18,8 @@ export default function ListCard<T>({
                                         maxRowsVisible = 5,
                                     }: ListGridProps<T>) {
     const hasActions = !!onEditRow || !!onDeleteRow;
-    const [pageSize, setPageSize] = React.useState<number>(10);
+    const initPageSize = isPageResponse<T>(data) ? data.page.size : 10;
+    const [pageSize, setPageSize] = React.useState<number>(initPageSize);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
 
     const gridTemplateColumns = hasActions
@@ -66,11 +67,9 @@ export default function ListCard<T>({
     const content: T[] = isPageResponse<T>(data) ? data.content : (data ?? []);
     // For array data, total is length. For PageResponse, it's totalElements.
     const total = isPageResponse<T>(data) ? data.page.totalElements : content.length;
-    
+
     // Calculate total pages
-    const totalPages = Math.ceil(total / pageSize);
-    
-    const displayContent = isPageResponse<T>(data) 
+    const displayContent = isPageResponse<T>(data)
         ? content 
         : (paginationEnabled 
             ? content.slice((currentPage - 1) * pageSize, currentPage * pageSize)
