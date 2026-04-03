@@ -12,6 +12,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+
 RUN npm install -g pnpm
 
 # Build
@@ -20,9 +24,6 @@ RUN pnpm run build
 # 3. Runner
 FROM node:20-alpine AS runner
 WORKDIR /app
-
-ARG NEXT_PUBLIC_API_BASE_URL
-ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 
 ENV NODE_ENV=docker
 
