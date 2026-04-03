@@ -14,14 +14,14 @@ import {useSetBreadcrumbs} from "luksal/app/context/BreadcrumbContext";
 
 export default function Page() {
     useSetBreadcrumbs([
-        { label: 'Data', href: '/data' },
-        { label: 'Authors', href: '/author' }
+        {label: 'Data', href: '/data'},
+        {label: 'Authors', href: '/author'}
     ]);
 
     const [selected, setSelected] = React.useState<AuthorDto | null>(null);
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
     const [searchCriteria, setSearchCriteria] = React.useState<AuthorSearchCriteria>({});
-    const [pagination, setPagination] = React.useState({ page: 1, size: 20 });
+    const [pagination, setPagination] = React.useState({page: 1, size: 20});
     const [mode, setMode] = React.useState<ModalMode>(ModalMode.View);
 
     const {data: authorsPage} = useAuthors(searchCriteria, pagination.page - 1, pagination.size);
@@ -35,18 +35,20 @@ export default function Page() {
     ];
 
     const criteriaFields: Criteria[] = [
-        {id: "id", type: "number", placeholder: "Id", transform: Number,
+        {
+            id: "id", type: "number", placeholder: "Id", transform: Number,
             props: {
                 min: 0,
                 className: "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            }},
+            }
+        },
         {id: "publicId", type: "text", placeholder: "Public Id"},
         {id: "name", type: "text", placeholder: "Name"}
     ];
 
-    function search(criteria: Record<string, unknown>) {
+    function search(criteria?: Record<string, unknown>) {
         setSearchCriteria(criteria as AuthorSearchCriteria);
-        setPagination(prev => ({ ...prev, page: 1 }));
+        setPagination(prev => ({...prev, page: 1}));
     }
 
     async function deleteAuthor(publicId: string | undefined) {
@@ -56,11 +58,13 @@ export default function Page() {
 
     return <div className="p-1 space-y-4 h-full">
         <div className="grid grid-cols-1 gap-6">
-            <ListToolbar searchCriteria={criteriaFields} search={search} onCreate={()=> {
-                setSelected(null);
-                setSelectedId(null);
-                setMode(ModalMode.Create);
-            }}></ListToolbar>
+            <ListToolbar searchCriteria={criteriaFields}
+                         search={search}
+                         onCreate={() => {
+                             setSelected(null);
+                             setSelectedId(null);
+                             setMode(ModalMode.Create);
+                         }}></ListToolbar>
             <ListCard
                 data={authorsPage}
                 columns={columns}
@@ -81,14 +85,14 @@ export default function Page() {
                     setMode(ModalMode.Delete);
                 }}
                 onPageChange={(page, size) => {
-                    setPagination({ page, size });
+                    setPagination({page, size});
                 }}
                 paginationEnabled={true}
             />
             <Modal
                 open={!!selected}
                 onSubmit={(data) => {
-                    // Placeholder for create/update logic
+                    return Promise.any([])
                 }}
                 onConfirmDelete={() => {
                     const publicId = selected?.publicId;

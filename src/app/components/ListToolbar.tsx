@@ -6,7 +6,7 @@ import clsx from "clsx";
 
 type Props = {
     searchCriteria?: Criteria[];
-    search?: (criteria?: Record<string, unknown>) => void;
+    search: (criteria?: Record<string, unknown>) => void;
     onCreate?: () => void;
     children?: React.ReactNode;
 };

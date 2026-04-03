@@ -9,7 +9,12 @@ import {BookDetailsFetchedStatisticsDto, BookRatingValue, RatingEventValue} from
 import {useBookRatingStatistics} from "luksal/app/hook/statistics/useBookRatingStatistics";
 import {useBookDetailsFetchedStatistics} from "luksal/app/hook/statistics/useBookDetailsFetchedStatistics";
 import {API_DATA_EVENT_URL} from "luksal/app/lib/api";
-import {AppLineChart} from "luksal/app/components/AppLineChart";
+import {AppLineChart, LineChartEntry} from "luksal/app/components/AppLineChart";
+
+type StatisticsResult = {
+    entries: LineChartEntry[];
+    keys: string[];
+};
 
 const STATUS_COLORS = {
     PENDING: "#FFBB28",
@@ -83,7 +88,7 @@ export default function Page() {
 
     function mapBookDetailsFetchedStatistics(
         data?: BookDetailsFetchedStatisticsDto
-    ) {
+    ) : StatisticsResult {
         if (!data?.values) {
             return {entries: [], keys: []};
         }
@@ -102,11 +107,11 @@ export default function Page() {
             time: new Date(item.time).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit"
-            })
-        }));
+            }),
+        })) as unknown;
 
         return {
-            entries: formattedData,
+            entries: formattedData as LineChartEntry[],
             keys: Array.from(keys)
         };
     }
@@ -139,7 +144,15 @@ export default function Page() {
     }
 
     function groupByCrawlerName(): Partial<Record<string, RatingEventValue[]>> {
-        return Object.groupBy(crawlerEventStatistics?.values ?? [], (value) => value.crawlerName);
+        return (crawlerEventStatistics?.values ?? [])
+            .filter(it => it.crawlerName)
+            .reduce((acc, value) => {
+                const key = value.crawlerName!;
+
+                (acc[key] ||= []).push(value);
+
+                return acc;
+            }, {} as Partial<Record<string, RatingEventValue[]>>);
     }
 
     function formatNumber(num: number | undefined): string {
@@ -262,7 +275,7 @@ export default function Page() {
                 )}
             </h5>
             <div className=" flex-1 flex items-center justify-center">
-                <AppLineChart entries={entries} keys={keys} colors={LINE_CHART_COLORS}></AppLineChart>
+                <AppLineChart entries={entries} keys={keys} colors={LINE_CHART_COLORS} title={""}></AppLineChart>
             </div>
         </div>
     </div>

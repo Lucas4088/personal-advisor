@@ -58,7 +58,7 @@ export default function Page() {
         }
     ];
 
-    function search(criteria: Record<string, unknown>) {
+    function search(criteria?: Record<string, unknown>) {
         setSearchCriteria(criteria as BookSearchCriteria);
         setPagination(prev => ({ ...prev, page: 1 }));
     }
@@ -82,8 +82,8 @@ export default function Page() {
             />
             <Modal
                 open={!!selected}
-                onSubmit={() => {
-                    // Placeholder for create/update logic
+                onSubmit={(data) => {
+                    return Promise.any([]);
                 }}
                 onClose={() => {
                     setSelected(null);

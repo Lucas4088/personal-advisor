@@ -56,10 +56,9 @@ export default function Page() {
                 </h3>
                 <DataPopulationBookBasicInfoSchedule></DataPopulationBookBasicInfoSchedule>
                 <div className="p-5">
-                    <ListCard onChange={(data, currentPage, selectedPageSize) => {
-                        setCurrentPage(currentPage);
-                        setPageSize(selectedPageSize);
-                    }} data={schedules ?? []} columns={columns} paginationEnabled={true}></ListCard>
+                    <ListCard
+                        data={schedules ?? []}
+                        columns={columns} paginationEnabled={true}></ListCard>
                 </div>
             </div>
 

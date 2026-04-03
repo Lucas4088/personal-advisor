@@ -1,11 +1,23 @@
+# 1. Dependencies
+FROM node:22-alpine AS deps
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# 2. Builder
 FROM node:20-alpine AS builder
 WORKDIR /app
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build
+RUN npm install -g pnpm
 
-# 3. Production image (small)
+# Build
+RUN pnpm run build
+
+# 3. Runner
 FROM node:20-alpine AS runner
 WORKDIR /app
 

@@ -39,12 +39,12 @@ export default function Page() {
         {id: "title", type: "text", placeholder: "Title"},
     ];
 
-    function search(criteria: Record<string, unknown>) {
+    function search(criteria?: Record<string, unknown>) {
         setSearchCriteria(criteria as BookBasicInfoSearchCriteria);
         setPagination(prev => ({ ...prev, page: 1 }));
     }
 
-    async function deleteBookBasicInfo(id: string | undefined) {
+    async function deleteBookBasicInfo(id?: string) {
         if (!id) return;
         await useDeleteBookBasicInfoHook.mutateAsync(id);
     }
@@ -78,14 +78,14 @@ export default function Page() {
             />
             <Modal
                 open={!!selected}
-                onSubmit={() => {
-                    // Placeholder for create/update logic
+                onSubmit={(data) => {
+                    return Promise.any([]);
                 }}
                 onConfirmDelete={() => {
                     const id = selected?.id;
                     setSelected(null);
                     setSelectedId(null);
-                    return deleteBookBasicInfo(id);
+                    return deleteBookBasicInfo(id?.toString());
                 }}
                 onClose={() => {
                     setSelected(null);

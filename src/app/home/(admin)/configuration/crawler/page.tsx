@@ -44,6 +44,8 @@ export default function Page() {
 
     function createEmptyCrawlerSetting(): CrawlerSetting {
         return {
+            forwardingProxyEnabled: false,
+            proxySessionEnabled: false,
             name: "",
             enabled: false,
             baseUrl: "",
@@ -61,7 +63,15 @@ export default function Page() {
                 bookAuthorsSelector: "",
                 search: "",
                 titleSpaceSeparator: "",
-            },
+                searchPageLoadedSelector: "",
+                isRatingAvailableOnSearch: false,
+                bookFirstElementSearchSelector: "",
+                bookRatingCountSearchSelector: "",
+                bookRatingScoreSearchSelector: "",
+                bookAuthorsSearchSelector: "",
+                bookTitleSearchSelector: "",
+                includeAuthorsForSearch: false
+            }
         };
     }
 
@@ -113,7 +123,6 @@ export default function Page() {
                         setSelectedId(row.id ?? null);
                         setMode(ModalMode.Delete);
                     }}
-                    onChange={() => {}}
                     paginationEnabled ={false}
                 />
 
