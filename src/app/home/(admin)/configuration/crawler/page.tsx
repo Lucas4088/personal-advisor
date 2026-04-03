@@ -72,6 +72,10 @@ export default function Page() {
         }
         payload.enabled = Boolean(payload.enabled);
         payload.proxyEnabled = Boolean(payload.proxyEnabled);
+        payload.proxySessionEnabled = Boolean(payload.proxyEnabled);
+        payload.forwardingProxyEnabled = Boolean(payload.proxyEnabled);
+        payload.path.includeAuthorsForSearch = Boolean(payload.path.includeAuthorsForSearch);
+        payload.path.isRatingAvailableOnSearch = Boolean(payload.path.isRatingAvailableOnSearch);
     }
 
     async function createCrawlerSettings(payload: CrawlerSetting) {

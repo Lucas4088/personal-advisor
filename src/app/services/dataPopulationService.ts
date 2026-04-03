@@ -7,7 +7,7 @@ import {
 } from "luksal/app/types/dataPopulation";
 import {PageResponse} from "luksal/app/types/api";
 import {
-    API_AUTHOR_FILE_IMPORT_URL,
+    API_AUTHOR_FILE_IMPORT_URL, API_BOOK_BASIC_INFO_EDITIONS_FILE_IMPORT_URL,
     API_BOOK_BASIC_INFO_FILE_IMPORT_URL,
     API_DATA_POPULATION_JOB_RUN_POLICY,
     API_FILE_IMPORT_URL
@@ -51,6 +51,10 @@ export const dataPopulationService = {
 
     importBasicBookInfoFromFile(): Promise<void> {
         return http<void>(API_BOOK_BASIC_INFO_FILE_IMPORT_URL, {method: "POST"})
+    },
+
+    importBasicBookInfoEditionsFromFile(): Promise<void> {
+        return http<void>(API_BOOK_BASIC_INFO_EDITIONS_FILE_IMPORT_URL, {method: "POST"})
     },
 
     getInitialFileImportState(eventName: string): Promise<string | undefined> {

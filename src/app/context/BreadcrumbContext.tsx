@@ -31,8 +31,13 @@ export function useBreadcrumb() {
 // Helper hook to set breadcrumbs in a page
 export function useSetBreadcrumbs(items: BreadcrumbItem[]) {
     const { setItems } = useBreadcrumb();
+    
+    // We use JSON.stringify to create a stable dependency key
+    // This prevents infinite loops when passing a new array literal on every render
+    const itemsKey = JSON.stringify(items);
+
     useEffect(() => {
         setItems(items);
         return () => setItems([]); // Clear on unmount
-    }, [items, setItems]); // Careful with dependency array here, items should be stable
+    }, [itemsKey, setItems]);
 }

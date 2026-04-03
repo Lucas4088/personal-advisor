@@ -24,3 +24,8 @@ export interface EventMeta {
     createdAt: number,
     updatedAt?: number,
 }
+
+export interface IngestionSourceStatus {
+    name: string,
+    status: "AVAILABLE" | "UNAVAILABLE" | "SEMI_AVAILABLE" | "UNKNOWN"
+}
