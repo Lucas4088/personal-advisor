@@ -1,7 +1,12 @@
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-export function getApiBaseUrl(): string {
-    return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+export function getApiBaseUrl() {
+    if (typeof window === "undefined") {
+        return process.env.INTERNAL_API_URL;
+    }
+
+    // browser
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
 }
 
 export class HttpError extends Error {
